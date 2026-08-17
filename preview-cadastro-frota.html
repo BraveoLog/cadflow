@@ -1,0 +1,1333 @@
+<title>Cadastro de Frota LogFlow</title>
+
+<style>
+/* ============================================================
+   CADASTRO DE FROTA - LOGFLOW BRAVEOLOG
+   Preview do layout corporativo (CSS idêntico ao cadastro-frota.css)
+   ============================================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --c-brand-deep: #2a0e44;
+  --c-brand: #4b1f73;
+  --c-brand-soft: #6f2fa8;
+  --c-brand-focus: #7c3aed;
+  --c-brand-tint: #f1ecf7;
+  --c-brand-line: #ddcdec;
+  --c-brand-text: #4b1f73;
+
+  --c-success-text: #0f7a41;
+  --c-success-tint: #eaf6ef;
+  --c-success-line: #bfe0cc;
+
+  --c-danger-text: #b42318;
+  --c-danger-tint: #fdecea;
+  --c-danger-line: #f2c6c0;
+
+  --c-bg: #f4f5f7;
+  --c-surface: #ffffff;
+  --c-surface-alt: #fafafb;
+  --c-border: #dde1e7;
+  --c-border-strong: #c7ccd6;
+  --c-text: #1a1f2b;
+  --c-text-soft: #414a5a;
+  --c-text-muted: #6b7383;
+  --c-text-faint: #97a0af;
+
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 8px;
+
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --c-brand-deep: #1a0a2b;
+    --c-brand: #6f2fa8;
+    --c-brand-soft: #8b3dd4;
+    --c-brand-focus: #8b3dd4;
+    --c-brand-tint: rgba(139, 61, 212, 0.14);
+    --c-brand-line: rgba(139, 61, 212, 0.34);
+    --c-brand-text: #c4a5e8;
+
+    --c-success-text: #4ade80;
+    --c-success-tint: rgba(16, 185, 129, 0.12);
+    --c-success-line: rgba(16, 185, 129, 0.3);
+
+    --c-danger-text: #fca5a5;
+    --c-danger-tint: rgba(239, 68, 68, 0.12);
+    --c-danger-line: rgba(239, 68, 68, 0.3);
+
+    --c-bg: #0f1117;
+    --c-surface: #161a22;
+    --c-surface-alt: #12161d;
+    --c-border: #262c37;
+    --c-border-strong: #38404e;
+    --c-text: #e9ebef;
+    --c-text-soft: #c3c9d3;
+    --c-text-muted: #8b93a1;
+    --c-text-faint: #6b7280;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--c-bg);
+  color: var(--c-text-soft);
+  line-height: 1.55;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  background: var(--c-brand-deep);
+  border-bottom: 1px solid var(--c-brand);
+}
+
+.topbar-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 14px 24px;
+}
+
+.preview-banner {
+  max-width: 860px;
+  margin: 20px auto 0;
+  padding: 12px 18px;
+  border: 1px dashed var(--c-brand-line);
+  border-radius: var(--r-sm);
+  background: var(--c-brand-tint);
+  color: var(--c-brand-text);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--r-sm);
+  background: #ffffff;
+  color: var(--c-brand-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.brand-text {
+  min-width: 0;
+}
+
+.brand-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.brand-sub {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.68);
+  margin-top: 1px;
+}
+
+.container {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding-bottom: 40px;
+}
+
+.form-header {
+  margin: 28px 0 20px;
+}
+
+.form-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--c-text);
+  margin-bottom: 6px;
+}
+
+.form-header p {
+  color: var(--c-text-muted);
+  font-size: 0.9rem;
+  max-width: 68ch;
+}
+
+.panel {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow: 0 1px 2px rgba(16, 20, 30, 0.05);
+  overflow: hidden;
+}
+
+.form-section {
+  padding: 22px 26px;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--c-brand);
+  display: inline-block;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--c-text-soft);
+  margin-bottom: 6px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-sm);
+  color: var(--c-text);
+  font-size: 0.94rem;
+  font-family: inherit;
+  transition: border-color 0.1s ease, box-shadow 0.1s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--c-brand-focus);
+  box-shadow: 0 0 0 2px var(--c-brand-tint);
+}
+
+.form-group input::placeholder {
+  color: var(--c-text-faint);
+}
+
+.form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: 36px;
+}
+
+.select-wrap {
+  position: relative;
+}
+
+.select-wrap::after {
+  content: '';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--c-text-muted);
+  border-bottom: 2px solid var(--c-text-muted);
+  transform: translateY(-65%) rotate(45deg);
+  pointer-events: none;
+}
+
+.form-group select:invalid {
+  color: var(--c-text-faint);
+}
+
+.form-group select option {
+  background: var(--c-surface);
+  color: var(--c-text);
+}
+
+.field-hint {
+  font-size: 0.72rem;
+  color: var(--c-text-muted);
+  margin-top: 4px;
+}
+
+.form-group input[readonly] {
+  background: var(--c-surface-alt);
+  color: var(--c-text-muted);
+  cursor: not-allowed;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--c-text-muted);
+  cursor: pointer;
+}
+
+.checkbox-field input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--c-brand);
+  cursor: pointer;
+}
+
+.file-group input[type="file"] {
+  display: none;
+}
+
+.file-group label.file-trigger {
+  display: block;
+  cursor: pointer;
+  padding: 10px 14px;
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-sm);
+  color: var(--c-text-soft);
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-align: center;
+  transition: border-color 0.1s ease, background 0.1s ease;
+}
+
+.file-group label.file-trigger:hover {
+  border-color: var(--c-brand);
+  background: var(--c-brand-tint);
+}
+
+.file-name {
+  font-size: 0.72rem;
+  color: var(--c-text-muted);
+  margin-top: 6px;
+}
+
+.file-group.has-file label.file-trigger {
+  border-color: var(--c-success-line);
+  background: var(--c-success-tint);
+  color: var(--c-success-text);
+}
+
+.timestamp-note {
+  padding: 14px 26px;
+  background: var(--c-surface-alt);
+  border-bottom: 1px solid var(--c-border);
+  font-size: 0.76rem;
+  color: var(--c-text-muted);
+}
+
+.form-actions {
+  padding: 20px 26px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-submit {
+  min-width: 220px;
+  padding: 12px 28px;
+  background: var(--c-brand);
+  color: #ffffff;
+  border: 1px solid var(--c-brand);
+  border-radius: var(--r-sm);
+  font-size: 0.92rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background: var(--c-brand-soft);
+}
+
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-loader {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.message-box {
+  margin-top: 18px;
+  padding: 14px 18px;
+  border: 1px solid var(--c-border);
+  border-left: 3px solid var(--c-text-muted);
+  border-radius: var(--r-sm);
+  background: var(--c-surface);
+  font-size: 0.88rem;
+}
+
+.message-box .tag {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.message-box.success {
+  border-left-color: var(--c-success-text);
+  background: var(--c-success-tint);
+}
+
+.message-box.success .tag {
+  color: var(--c-success-text);
+}
+
+.message-box.error {
+  border-left-color: var(--c-danger-text);
+  background: var(--c-danger-tint);
+}
+
+.message-box.error .tag {
+  color: var(--c-danger-text);
+}
+
+.message-box .payload {
+  display: block;
+  margin-top: 10px;
+  padding: 10px;
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--c-text-soft);
+  text-align: left;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.form-group input.invalid,
+.form-group select.invalid {
+  border-color: var(--c-danger-line);
+  background-color: var(--c-danger-tint);
+}
+
+.form-group input.valid,
+.form-group select.valid {
+  border-color: var(--c-success-line);
+}
+
+.error-message {
+  font-size: 0.72rem;
+  color: var(--c-danger-text);
+  margin-top: 4px;
+  display: none;
+}
+
+.form-group.has-error .error-message {
+  display: block;
+}
+
+.footer {
+  padding: 20px 0;
+  text-align: center;
+  border-top: 1px solid var(--c-border);
+  margin-top: auto;
+}
+
+.footer p {
+  font-size: 0.78rem;
+  color: var(--c-text-faint);
+}
+
+@media (max-width: 640px) {
+  .container,
+  .topbar-inner {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .form-section,
+  .timestamp-note,
+  .form-actions {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .form-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-submit {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">LF</div>
+      <div class="brand-text">
+        <div class="brand-name">LOGFLOW</div>
+        <div class="brand-sub">BRAVEOLOG · Cadastro de Frota</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<p class="preview-banner">
+  Preview de layout — o envio aqui é simulado e mostra os dados que iriam
+  para a planilha. Nenhum arquivo sai do seu navegador.
+</p>
+
+<div class="container">
+  <main class="main-content">
+    <div class="form-header">
+      <h1>Cadastro de Frota</h1>
+      <p>
+        Preencha todos os campos obrigatórios e anexe os documentos
+        solicitados.
+      </p>
+    </div>
+
+    <form id="cadastroForm">
+      <div class="panel">
+        <section class="form-section">
+          <h2 class="section-title">Dados da Empresa</h2>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nomeResponsavel">
+                Nome Completo do Responsável CNPJ *
+              </label>
+
+              <input type="text" id="nomeResponsavel" name="nomeResponsavel"
+                required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="razaoSocial">Razão Social Empresa *</label>
+
+              <input type="text" id="razaoSocial" name="razaoSocial" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="numeroCNPJ">Número CNPJ *</label>
+
+              <input type="text" id="numeroCNPJ" name="numeroCNPJ"
+                placeholder="00.000.000/0000-00" maxlength="18" required>
+
+              <span class="field-hint">Digite apenas números</span>
+            </div>
+
+            <div class="form-group">
+              <label for="inscricaoEstadual">Inscrição Estadual *</label>
+
+              <input type="text" id="inscricaoEstadual" name="inscricaoEstadual"
+                placeholder="Apenas números" required>
+
+              <label class="checkbox-field" for="ieIsento">
+                <input type="checkbox" id="ieIsento" name="ieIsento">
+                CNPJ isento de Inscrição Estadual
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="emailEmpresa">Email da Empresa *</label>
+
+              <input type="email" id="emailEmpresa" name="emailEmpresa"
+                placeholder="empresa@exemplo.com" required>
+            </div>
+
+            <div class="form-group">
+              <label for="telefoneContato">Telefone para Contato *</label>
+
+              <input type="text" id="telefoneContato" name="telefoneContato"
+                placeholder="(00) 00000-0000" maxlength="15" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group file-group">
+              <label for="cartaoCNPJ">Cartão CNPJ * (imagem ou PDF)</label>
+              <label for="cartaoCNPJ" class="file-trigger">Selecionar arquivo</label>
+
+              <input type="file" id="cartaoCNPJ" name="cartaoCNPJ"
+                accept="image/*,.pdf" required>
+
+              <span class="file-name"></span>
+            </div>
+
+            <div class="form-group file-group">
+              <label for="fotoANTT">
+                Foto da ANTT do CNPJ * (imagem ou PDF)
+              </label>
+              <label for="fotoANTT" class="file-trigger">Selecionar arquivo</label>
+
+              <input type="file" id="fotoANTT" name="fotoANTT"
+                accept="image/*,.pdf" required>
+
+              <span class="file-name"></span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group file-group">
+              <label for="comprovanteEndereco">
+                Comprovante de Endereço * (imagem ou PDF)
+              </label>
+              <label for="comprovanteEndereco" class="file-trigger">Selecionar arquivo</label>
+
+              <input type="file" id="comprovanteEndereco"
+                name="comprovanteEndereco" accept="image/*,.pdf" required>
+
+              <span class="file-name"></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2 class="section-title">Dados do Motorista</h2>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nomeMotorista">Nome Completo do Motorista *</label>
+
+              <input type="text" id="nomeMotorista" name="nomeMotorista"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label for="cpfMotorista">CPF do Motorista *</label>
+
+              <input type="text" id="cpfMotorista" name="cpfMotorista"
+                placeholder="000.000.000-00" maxlength="14" required>
+
+              <span class="field-hint">Digite apenas números</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group file-group">
+              <label for="fotoCNH">Foto da CNH * (imagem ou PDF)</label>
+              <label for="fotoCNH" class="file-trigger">Selecionar arquivo</label>
+
+              <input type="file" id="fotoCNH" name="fotoCNH"
+                accept="image/*,.pdf" required>
+
+              <span class="file-name"></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2 class="section-title">Dados do Veículo</h2>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="placaVeiculo">PLACA do Veículo *</label>
+
+              <input type="text" id="placaVeiculo" name="placaVeiculo"
+                placeholder="AAA0A00 ou AAA0000" maxlength="7" required>
+
+              <span class="field-hint">
+                Formato antigo (AAA0000) ou Mercosul (AAA0A00)
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="modeloVeiculo">Modelo do Veículo *</label>
+
+              <div class="select-wrap">
+                <select id="modeloVeiculo" name="modeloVeiculo" required>
+                  <option value="">Selecione o modelo</option>
+                  <option value="VAN">VAN</option>
+                  <option value="TIPO 3/4">TIPO 3/4</option>
+                  <option value="FIORINO">FIORINO</option>
+                  <option value="TOCO">TOCO</option>
+                  <option value="TRUCK">TRUCK</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="renavam">Renavam *</label>
+
+              <input type="text" id="renavam" name="renavam"
+                placeholder="00000000000" inputmode="numeric" maxlength="11"
+                required>
+
+              <span class="field-hint">Apenas números (9 a 11 dígitos)</span>
+            </div>
+
+            <div class="form-group">
+              <label for="pesoBrutoTotal">Peso Bruto Total (kg) *</label>
+
+              <input type="text" id="pesoBrutoTotal" name="pesoBrutoTotal"
+                placeholder="0" inputmode="numeric" required>
+
+              <span class="field-hint">
+                Apenas números, entre 0 e 20.000 kg
+              </span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group file-group">
+              <label for="fotoCRLV">
+                Foto do CRLV do Veículo * (imagem ou PDF)
+              </label>
+              <label for="fotoCRLV" class="file-trigger">Selecionar arquivo</label>
+
+              <input type="file" id="fotoCRLV" name="fotoCRLV"
+                accept="image/*,.pdf" required>
+
+              <span class="file-name"></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2 class="section-title">Dados Bancários</h2>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nomeBanco">Nome do Banco *</label>
+
+              <input type="text" id="nomeBanco" name="nomeBanco" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="numeroAgencia">Número da Agência *</label>
+
+              <input type="text" id="numeroAgencia" name="numeroAgencia"
+                placeholder="0000" required>
+
+              <span class="field-hint">Apenas números</span>
+            </div>
+
+            <div class="form-group">
+              <label for="numeroConta">Número da Conta - Dígito *</label>
+
+              <input type="text" id="numeroConta" name="numeroConta"
+                placeholder="00000-0" required>
+
+              <span class="field-hint">Formato: 00000-0</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="chavePix">Chave Pix *</label>
+
+              <input type="text" id="chavePix" name="chavePix" required>
+
+              <span class="field-hint">
+                CPF, CNPJ, Email, Telefone ou Chave Aleatória
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2 class="section-title">Operação</h2>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="operacao">OPERAÇÃO *</label>
+
+              <div class="select-wrap">
+                <select id="operacao" name="operacao" required>
+                  <option value="">Selecione a operação</option>
+                  <option value="CONGELADO">CONGELADO</option>
+                  <option value="REFRIGERADO">REFRIGERADO</option>
+                  <option value="SECO">SECO</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <p class="timestamp-note">
+          O carimbo de data/hora é registrado automaticamente no momento do
+          envio do formulário.
+        </p>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-submit" id="btnSubmit">
+            <span class="btn-text">Enviar Cadastro</span>
+            <span class="btn-loader" style="display: none;"></span>
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <div id="messageBox" class="message-box" style="display: none;"></div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2024 BRAVEOLOG — Todos os direitos reservados</p>
+  </footer>
+</div>
+
+<script>
+// ============================================================
+// Máscaras e validações (idênticas ao cadastro-frota.js)
+// ============================================================
+
+function mascaraCNPJ(valor) {
+  return valor
+    .replace(/\D/g, '')
+    .replace(/^(\d{2})(\d)/, '$1.$2')
+    .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/\.(\d{3})(\d)/, '.$1/$2')
+    .replace(/(\d{4})(\d)/, '$1-$2')
+    .slice(0, 18);
+}
+
+function mascaraCPF(valor) {
+  return valor
+    .replace(/\D/g, '')
+    .replace(/^(\d{3})(\d)/, '$1.$2')
+    .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/\.(\d{3})(\d)/, '.$1-$2')
+    .slice(0, 14);
+}
+
+function mascaraTelefone(valor) {
+  valor = valor.replace(/\D/g, '');
+
+  if (valor.length <= 10) {
+    return valor
+      .replace(/^(\d{2})(\d)/, '($1) $2')
+      .replace(/(\d{4})(\d)/, '$1-$2');
+  }
+
+  return valor
+    .replace(/^(\d{2})(\d)/, '($1) $2')
+    .replace(/(\d{5})(\d)/, '$1-$2')
+    .slice(0, 15);
+}
+
+function mascaraConta(valor) {
+  valor = valor.replace(/\D/g, '');
+
+  if (valor.length > 1) {
+    const digito = valor.slice(-1);
+    const numero = valor.slice(0, -1);
+
+    return `${numero}-${digito}`;
+  }
+
+  return valor;
+}
+
+function mascaraPeso(valor) {
+  let digitos = valor.replace(/\D/g, '').slice(0, 5);
+
+  if (!digitos) {
+    return '';
+  }
+
+  if (parseInt(digitos, 10) > 20000) {
+    digitos = '20000';
+  }
+
+  return digitos.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+function validarCNPJ(cnpj) {
+  cnpj = cnpj.replace(/\D/g, '');
+
+  if (cnpj.length !== 14) return false;
+  if (/^(\d)\1+$/.test(cnpj)) return false;
+
+  let tamanho = cnpj.length - 2;
+  let numeros = cnpj.substring(0, tamanho);
+  const digitos = cnpj.substring(tamanho);
+  let soma = 0;
+  let pos = tamanho - 7;
+
+  for (let i = tamanho; i >= 1; i--) {
+    soma += numeros.charAt(tamanho - i) * pos--;
+    if (pos < 2) pos = 9;
+  }
+
+  let resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+
+  if (resultado != digitos.charAt(0)) return false;
+
+  tamanho += 1;
+  numeros = cnpj.substring(0, tamanho);
+  soma = 0;
+  pos = tamanho - 7;
+
+  for (let i = tamanho; i >= 1; i--) {
+    soma += numeros.charAt(tamanho - i) * pos--;
+    if (pos < 2) pos = 9;
+  }
+
+  resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+
+  return resultado == digitos.charAt(1);
+}
+
+function validarCPF(cpf) {
+  cpf = cpf.replace(/\D/g, '');
+
+  if (cpf.length !== 11) return false;
+  if (/^(\d)\1+$/.test(cpf)) return false;
+
+  let soma = 0;
+
+  for (let i = 0; i < 9; i++) {
+    soma += parseInt(cpf.charAt(i)) * (10 - i);
+  }
+
+  let resto = soma % 11;
+  const digito1 = resto < 2 ? 0 : 11 - resto;
+
+  if (digito1 != cpf.charAt(9)) return false;
+
+  soma = 0;
+
+  for (let i = 0; i < 10; i++) {
+    soma += parseInt(cpf.charAt(i)) * (11 - i);
+  }
+
+  resto = soma % 11;
+  const digito2 = resto < 2 ? 0 : 11 - resto;
+
+  return digito2 == cpf.charAt(10);
+}
+
+function validarPlaca(placa) {
+  placa = placa.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+  const regexAntigo = /^[A-Z]{3}[0-9]{4}$/;
+  const regexMercosul = /^[A-Z]{3}[0-9][A-Z][0-9]{2}$/;
+
+  return regexAntigo.test(placa) || regexMercosul.test(placa);
+}
+
+function validarRenavam(renavam) {
+  return /^\d{9,11}$/.test(renavam.replace(/\D/g, ''));
+}
+
+function validarPesoBruto(peso) {
+  const digitos = String(peso).replace(/\D/g, '');
+
+  if (!digitos) return false;
+
+  const valor = parseInt(digitos, 10);
+
+  return valor >= 0 && valor <= 20000;
+}
+
+function validarEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// ============================================================
+// Ligações de eventos
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('cadastroForm');
+
+  const cnpjInput = document.getElementById('numeroCNPJ');
+  cnpjInput.addEventListener('input', e => {
+    e.target.value = mascaraCNPJ(e.target.value);
+  });
+
+  const cpfInput = document.getElementById('cpfMotorista');
+  cpfInput.addEventListener('input', e => {
+    e.target.value = mascaraCPF(e.target.value);
+  });
+
+  const telefoneInput = document.getElementById('telefoneContato');
+  telefoneInput.addEventListener('input', e => {
+    e.target.value = mascaraTelefone(e.target.value);
+  });
+
+  const contaInput = document.getElementById('numeroConta');
+  contaInput.addEventListener('input', e => {
+    const valor = e.target.value.replace(/\D/g, '');
+    if (valor.length > 0) e.target.value = mascaraConta(valor);
+  });
+
+  const agenciaInput = document.getElementById('numeroAgencia');
+  agenciaInput.addEventListener('input', e => {
+    e.target.value = e.target.value.replace(/\D/g, '');
+  });
+
+  const ieInput = document.getElementById('inscricaoEstadual');
+  ieInput.addEventListener('input', e => {
+    e.target.value = e.target.value.replace(/\D/g, '');
+  });
+
+  const ieIsentoInput = document.getElementById('ieIsento');
+  ieIsentoInput.addEventListener('change', e => {
+    const isento = e.target.checked;
+
+    ieInput.readOnly = isento;
+    ieInput.required = !isento;
+    ieInput.value = isento ? 'ISENTO' : '';
+    ieInput.classList.remove('invalid', 'valid');
+
+    const formGroup = ieInput.closest('.form-group');
+    formGroup.classList.remove('has-error');
+
+    const errorMsg = formGroup.querySelector('.error-message');
+    if (errorMsg) errorMsg.remove();
+  });
+
+  const placaInput = document.getElementById('placaVeiculo');
+  placaInput.addEventListener('input', e => {
+    e.target.value = e.target.value
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, '')
+      .slice(0, 7);
+  });
+
+  const renavamInput = document.getElementById('renavam');
+  renavamInput.addEventListener('input', e => {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 11);
+  });
+
+  const pesoInput = document.getElementById('pesoBrutoTotal');
+  pesoInput.addEventListener('input', e => {
+    e.target.value = mascaraPeso(e.target.value);
+  });
+
+  document.querySelectorAll('.form-group select').forEach(select => {
+    select.addEventListener('change', e => {
+      e.target.classList.toggle('valid', Boolean(e.target.value));
+      e.target.classList.remove('invalid');
+    });
+  });
+
+  document.querySelectorAll('input[type="file"]').forEach(input => {
+    input.addEventListener('change', e => {
+      const fileGroup = e.target.closest('.file-group');
+      const fileName = fileGroup.querySelector('.file-name');
+
+      if (e.target.files.length > 0) {
+        const file = e.target.files[0];
+
+        fileName.textContent =
+          `Arquivo: ${file.name} (${formatBytes(file.size)})`;
+
+        fileGroup.classList.add('has-file');
+      } else {
+        fileName.textContent = '';
+        fileGroup.classList.remove('has-file');
+      }
+    });
+  });
+
+  cnpjInput.addEventListener('blur', e => {
+    validarCampo(e.target, validarCNPJ, 'CNPJ inválido');
+  });
+
+  cpfInput.addEventListener('blur', e => {
+    validarCampo(e.target, validarCPF, 'CPF inválido');
+  });
+
+  document.getElementById('emailEmpresa').addEventListener('blur', e => {
+    validarCampo(e.target, validarEmail, 'Email inválido');
+  });
+
+  placaInput.addEventListener('blur', e => {
+    validarCampo(e.target, validarPlaca, 'Placa inválida. Use AAA0000 ou AAA0A00');
+  });
+
+  renavamInput.addEventListener('blur', e => {
+    validarCampo(e.target, validarRenavam, 'Renavam inválido. Informe de 9 a 11 dígitos');
+  });
+
+  pesoInput.addEventListener('blur', e => {
+    validarCampo(e.target, validarPesoBruto, 'Peso Bruto Total deve estar entre 0 e 20.000 kg');
+  });
+
+  form.addEventListener('submit', handleSubmit);
+});
+
+function validarCampo(input, validador, mensagemErro) {
+  const valor = input.value;
+  const formGroup = input.closest('.form-group');
+
+  let errorMsg = formGroup.querySelector('.error-message');
+  if (errorMsg) errorMsg.remove();
+
+  formGroup.classList.remove('has-error');
+  input.classList.remove('invalid', 'valid');
+
+  if (!valor) return;
+
+  if (validador(valor)) {
+    input.classList.add('valid');
+  } else {
+    input.classList.add('invalid');
+    formGroup.classList.add('has-error');
+
+    errorMsg = document.createElement('span');
+    errorMsg.className = 'error-message';
+    errorMsg.textContent = mensagemErro;
+
+    formGroup.appendChild(errorMsg);
+  }
+}
+
+function formatBytes(bytes, decimals = 2) {
+  if (bytes === 0) return '0 Bytes';
+
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+}
+
+// ============================================================
+// Envio simulado (preview)
+// ============================================================
+
+function handleSubmit(e) {
+  e.preventDefault();
+
+  const form = e.target;
+  const erros = [];
+  let valido = true;
+
+  const obrigatoriosTexto = [
+    ['nomeResponsavel', 'Nome Completo do Responsável CNPJ'],
+    ['razaoSocial', 'Razão Social Empresa'],
+    ['nomeMotorista', 'Nome Completo do Motorista'],
+    ['nomeBanco', 'Nome do Banco'],
+    ['chavePix', 'Chave Pix']
+  ];
+
+  for (const [id, rotulo] of obrigatoriosTexto) {
+    if (!document.getElementById(id).value.trim()) {
+      erros.push(`Preencha o campo "${rotulo}"`);
+      valido = false;
+    }
+  }
+
+  if (!validarCNPJ(document.getElementById('numeroCNPJ').value)) {
+    erros.push('CNPJ inválido');
+    valido = false;
+  }
+
+  if (!validarCPF(document.getElementById('cpfMotorista').value)) {
+    erros.push('CPF do motorista inválido');
+    valido = false;
+  }
+
+  if (!validarEmail(document.getElementById('emailEmpresa').value)) {
+    erros.push('Email da empresa inválido');
+    valido = false;
+  }
+
+  if (!validarPlaca(document.getElementById('placaVeiculo').value)) {
+    erros.push('Placa do veículo inválida. Use AAA0000 ou AAA0A00');
+    valido = false;
+  }
+
+  if (!/^\d+-\d$/.test(document.getElementById('numeroConta').value)) {
+    erros.push('Número da conta deve estar no formato: 00000-0');
+    valido = false;
+  }
+
+  if (!/^\d+$/.test(document.getElementById('numeroAgencia').value)) {
+    erros.push('Agência deve conter apenas números');
+    valido = false;
+  }
+
+  const ieIsentoChecked = document.getElementById('ieIsento').checked;
+
+  if (!ieIsentoChecked && !/^\d+$/.test(document.getElementById('inscricaoEstadual').value)) {
+    erros.push('Inscrição Estadual deve conter apenas números (ou marque "CNPJ isento")');
+    valido = false;
+  }
+
+  if (!validarRenavam(document.getElementById('renavam').value)) {
+    erros.push('Renavam inválido. Informe de 9 a 11 dígitos');
+    valido = false;
+  }
+
+  const peso = document.getElementById('pesoBrutoTotal').value;
+
+  if (!validarPesoBruto(peso)) {
+    erros.push('Peso Bruto Total deve ser um número entre 0 e 20.000 kg');
+    valido = false;
+  }
+
+  const selecoes = [
+    ['modeloVeiculo', 'Selecione o Modelo do Veículo'],
+    ['operacao', 'Selecione a OPERAÇÃO']
+  ];
+
+  for (const [id, mensagem] of selecoes) {
+    const select = document.getElementById(id);
+
+    if (!select.value) {
+      select.classList.add('invalid');
+      erros.push(mensagem);
+      valido = false;
+    }
+  }
+
+  const arquivosObrigatorios = [
+    'cartaoCNPJ',
+    'fotoANTT',
+    'fotoCNH',
+    'fotoCRLV',
+    'comprovanteEndereco'
+  ];
+
+  for (const id of arquivosObrigatorios) {
+    const input = document.getElementById(id);
+
+    if (!input.files || input.files.length === 0) {
+      erros.push(`Anexe o documento "${input.labels[0].textContent.trim()}"`);
+      valido = false;
+    }
+  }
+
+  if (!valido) {
+    mostrarMensagem('error', 'Erros no formulário:<br>' + erros.join('<br>'));
+    return;
+  }
+
+  const dataHora = new Date().toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+
+  const linhas = [`carimboDataHora: ${dataHora}`];
+
+  new FormData(form).forEach((valor, chave) => {
+    if (valor instanceof File) {
+      linhas.push(`${chave}: ${valor.name} → link do Drive`);
+    } else if (chave === 'pesoBrutoTotal') {
+      linhas.push(`${chave}: ${valor.replace(/\D/g, '')}`);
+    } else {
+      linhas.push(`${chave}: ${valor}`);
+    }
+  });
+
+  const payload = linhas
+    .map(l => l.replace(/&/g, '&amp;').replace(/</g, '&lt;'))
+    .join('\n');
+
+  mostrarMensagem(
+    'success',
+    'Cadastro validado (preview — nada foi enviado).' +
+    `<span class="payload">${payload}</span>`
+  );
+}
+
+function mostrarMensagem(tipo, mensagem) {
+  const messageBox = document.getElementById('messageBox');
+  const rotulo = tipo === 'success' ? 'Sucesso' : 'Erro';
+
+  messageBox.className = `message-box ${tipo}`;
+  messageBox.innerHTML = `<span class="tag">${rotulo}</span>${mensagem}`;
+  messageBox.style.display = 'block';
+
+  messageBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+</script>
+<html xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882"><head>
+<!--[if gte mso 9]><xml>
+<mso:CustomDocumentProperties>
+<mso:_dlc_DocId msdt:dt="string">HM2CZKYNKVVN-1053478190-31417</mso:_dlc_DocId>
+<mso:_dlc_DocIdItemGuid msdt:dt="string">fa8048ab-f9ec-4ccf-9be1-428b093f7a55</mso:_dlc_DocIdItemGuid>
+<mso:_dlc_DocIdUrl msdt:dt="string">https://arilugestao.sharepoint.com/sites/LOGISTICA-ARILU/_layouts/15/DocIdRedir.aspx?ID=HM2CZKYNKVVN-1053478190-31417, HM2CZKYNKVVN-1053478190-31417</mso:_dlc_DocIdUrl>
+</mso:CustomDocumentProperties>
+</xml><![endif]-->
+</head>

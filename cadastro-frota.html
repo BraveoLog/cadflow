@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LOGFLOW - Cadastro de Frota</title>
+  <link rel="stylesheet" href="cadastro-frota.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark">LF</div>
+        <div class="brand-text">
+          <div class="brand-name">LOGFLOW</div>
+          <div class="brand-sub">BRAVEOLOG · Cadastro de Frota</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <main class="main-content">
+      <div class="form-header">
+        <h1>Cadastro de Frota</h1>
+        <p>
+          Preencha todos os campos obrigatórios e anexe os documentos
+          solicitados.
+        </p>
+      </div>
+
+      <form id="cadastroForm">
+        <div class="panel">
+          <!-- Seção: Dados da Empresa -->
+          <section class="form-section">
+            <h2 class="section-title">Dados da Empresa</h2>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="nomeResponsavel">
+                  Nome Completo do Responsável CNPJ *
+                </label>
+
+                <input
+                  type="text"
+                  id="nomeResponsavel"
+                  name="nomeResponsavel"
+                  required
+                >
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="razaoSocial">Razão Social Empresa *</label>
+
+                <input
+                  type="text"
+                  id="razaoSocial"
+                  name="razaoSocial"
+                  required
+                >
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="numeroCNPJ">Número CNPJ *</label>
+
+                <input
+                  type="text"
+                  id="numeroCNPJ"
+                  name="numeroCNPJ"
+                  placeholder="00.000.000/0000-00"
+                  maxlength="18"
+                  required
+                >
+
+                <span class="field-hint">Digite apenas números</span>
+              </div>
+
+              <div class="form-group">
+                <label for="inscricaoEstadual">Inscrição Estadual *</label>
+
+                <input
+                  type="text"
+                  id="inscricaoEstadual"
+                  name="inscricaoEstadual"
+                  placeholder="Apenas números"
+                  required
+                >
+
+                <label class="checkbox-field" for="ieIsento">
+                  <input type="checkbox" id="ieIsento" name="ieIsento">
+                  CNPJ isento de Inscrição Estadual
+                </label>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="emailEmpresa">Email da Empresa *</label>
+
+                <input
+                  type="email"
+                  id="emailEmpresa"
+                  name="emailEmpresa"
+                  placeholder="empresa@exemplo.com"
+                  required
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="telefoneContato">Telefone para Contato *</label>
+
+                <input
+                  type="text"
+                  id="telefoneContato"
+                  name="telefoneContato"
+                  placeholder="(00) 00000-0000"
+                  maxlength="15"
+                  required
+                >
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group file-group">
+                <label for="cartaoCNPJ">
+                  Cartão CNPJ * (imagem ou PDF)
+                </label>
+
+                <label for="cartaoCNPJ" class="file-trigger">
+                  Selecionar arquivo
+                </label>
+
+                <input
+                  type="file"
+                  id="cartaoCNPJ"
+                  name="cartaoCNPJ"
+                  accept="image/*,.pdf"
+                  required
+                >
+
+                <span class="file-name"></span>
+              </div>
+
+              <div class="form-group file-group">
+                <label for="fotoANTT">
+                  Foto da ANTT do CNPJ * (imagem ou PDF)
+                </label>
+
+                <label for="fotoANTT" class="file-trigger">
+                  Selecionar arquivo
+                </label>
+
+                <input
+                  type="file"
+                  id="fotoANTT"
+                  name="fotoANTT"
+                  accept="image/*,.pdf"
+                  required
+                >
+
+                <span class="file-name"></span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group file-group">
+                <label for="comprovanteEndereco">
+                  Comprovante de Endereço * (imagem ou PDF)
+                </label>
+
+                <label for="comprovanteEndereco" class="file-trigger">
+                  Selecionar arquivo
+                </label>
+
+                <input
+                  type="file"
+                  id="comprovanteEndereco"
+                  name="comprovanteEndereco"
+                  accept="image/*,.pdf"
+                  required
+                >
+
+                <span class="file-name"></span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Seção: Dados do Motorista -->
+          <section class="form-section">
+            <h2 class="section-title">Dados do Motorista</h2>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="nomeMotorista">
+                  Nome Completo do Motorista *
+                </label>
+
+                <input
+                  type="text"
+                  id="nomeMotorista"
+                  name="nomeMotorista"
+                  required
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="cpfMotorista">CPF do Motorista *</label>
+
+                <input
+                  type="text"
+                  id="cpfMotorista"
+                  name="cpfMotorista"
+                  placeholder="000.000.000-00"
+                  maxlength="14"
+                  required
+                >
+
+                <span class="field-hint">Digite apenas números</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group file-group">
+                <label for="fotoCNH">
+                  Foto da CNH * (imagem ou PDF)
+                </label>
+
+                <label for="fotoCNH" class="file-trigger">
+                  Selecionar arquivo
+                </label>
+
+                <input
+                  type="file"
+                  id="fotoCNH"
+                  name="fotoCNH"
+                  accept="image/*,.pdf"
+                  required
+                >
+
+                <span class="file-name"></span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Seção: Dados do Veículo -->
+          <section class="form-section">
+            <h2 class="section-title">Dados do Veículo</h2>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="placaVeiculo">PLACA do Veículo *</label>
+
+                <input
+                  type="text"
+                  id="placaVeiculo"
+                  name="placaVeiculo"
+                  placeholder="AAA0A00 ou AAA0000"
+                  maxlength="7"
+                  required
+                >
+
+                <span class="field-hint">
+                  Formato antigo (AAA0000) ou Mercosul (AAA0A00)
+                </span>
+              </div>
+
+              <div class="form-group">
+                <label for="modeloVeiculo">Modelo do Veículo *</label>
+
+                <div class="select-wrap">
+                  <select id="modeloVeiculo" name="modeloVeiculo" required>
+                    <option value="">Selecione o modelo</option>
+                    <option value="VAN">VAN</option>
+                    <option value="TIPO 3/4">TIPO 3/4</option>
+                    <option value="FIORINO">FIORINO</option>
+                    <option value="TOCO">TOCO</option>
+                    <option value="TRUCK">TRUCK</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="renavam">Renavam *</label>
+
+                <input
+                  type="text"
+                  id="renavam"
+                  name="renavam"
+                  placeholder="00000000000"
+                  inputmode="numeric"
+                  maxlength="11"
+                  required
+                >
+
+                <span class="field-hint">Apenas números (9 a 11 dígitos)</span>
+              </div>
+
+              <div class="form-group">
+                <label for="pesoBrutoTotal">Peso Bruto Total (kg) *</label>
+
+                <input
+                  type="text"
+                  id="pesoBrutoTotal"
+                  name="pesoBrutoTotal"
+                  placeholder="0"
+                  inputmode="numeric"
+                  required
+                >
+
+                <span class="field-hint">
+                  Apenas números, entre 0 e 20.000 kg
+                </span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group file-group">
+                <label for="fotoCRLV">
+                  Foto do CRLV do Veículo * (imagem ou PDF)
+                </label>
+
+                <label for="fotoCRLV" class="file-trigger">
+                  Selecionar arquivo
+                </label>
+
+                <input
+                  type="file"
+                  id="fotoCRLV"
+                  name="fotoCRLV"
+                  accept="image/*,.pdf"
+                  required
+                >
+
+                <span class="file-name"></span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Seção: Dados Bancários -->
+          <section class="form-section">
+            <h2 class="section-title">Dados Bancários</h2>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="nomeBanco">Nome do Banco *</label>
+
+                <input
+                  type="text"
+                  id="nomeBanco"
+                  name="nomeBanco"
+                  required
+                >
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="numeroAgencia">Número da Agência *</label>
+
+                <input
+                  type="text"
+                  id="numeroAgencia"
+                  name="numeroAgencia"
+                  placeholder="0000"
+                  required
+                >
+
+                <span class="field-hint">Apenas números</span>
+              </div>
+
+              <div class="form-group">
+                <label for="numeroConta">
+                  Número da Conta - Dígito *
+                </label>
+
+                <input
+                  type="text"
+                  id="numeroConta"
+                  name="numeroConta"
+                  placeholder="00000-0"
+                  required
+                >
+
+                <span class="field-hint">Formato: 00000-0</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="chavePix">Chave Pix *</label>
+
+                <input
+                  type="text"
+                  id="chavePix"
+                  name="chavePix"
+                  required
+                >
+
+                <span class="field-hint">
+                  CPF, CNPJ, Email, Telefone ou Chave Aleatória
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Seção: Operação -->
+          <section class="form-section">
+            <h2 class="section-title">Operação</h2>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="operacao">OPERAÇÃO *</label>
+
+                <div class="select-wrap">
+                  <select id="operacao" name="operacao" required>
+                    <option value="">Selecione a operação</option>
+                    <option value="CONGELADO">CONGELADO</option>
+                    <option value="REFRIGERADO">REFRIGERADO</option>
+                    <option value="SECO">SECO</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <p class="timestamp-note">
+            O carimbo de data/hora é registrado automaticamente no momento
+            do envio do formulário.
+          </p>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-submit" id="btnSubmit">
+              <span class="btn-text">Enviar Cadastro</span>
+              <span class="btn-loader" style="display: none;"></span>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div
+        id="messageBox"
+        class="message-box"
+        style="display: none;"
+      ></div>
+    </main>
+
+    <footer class="footer">
+      <p>&copy; 2024 BRAVEOLOG — Todos os direitos reservados</p>
+    </footer>
+  </div>
+
+  <script src="cadastro-frota.js"></script>
+</body>
+</html>
