@@ -118,6 +118,21 @@ https://docs.google.com/spreadsheets/d/[ID_DA_PLANILHA]/edit
    https://script.google.com/macros/s/SEU_ID/exec
    ```
 
+### Passo 6: Republicar sempre que o `.gs` mudar
+
+Salvar o código no editor **não** atualiza a URL `/exec`: o Web App
+continua servindo a última *versão implantada*. Depois de colar uma
+nova versão de `google-apps-script.gs`:
+
+1. "Implantar" > "Gerenciar implantações".
+2. No lápis (editar), em **Versão** escolha "Nova versão".
+3. "Implantar". A URL `/exec` continua a mesma.
+
+Para conferir qual versão está no ar, abra a URL `/exec` no navegador:
+o `doGet` responde com o campo `versao`. O código atual desta pasta é
+a versão `4.0 - Anexos em base64`; se a URL responder outra coisa, a
+implantação está atrasada.
+
 ---
 
 ## Configuração do Frontend

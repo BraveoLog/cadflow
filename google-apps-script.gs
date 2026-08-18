@@ -130,12 +130,14 @@ function doPost(e) {
 // ============================================================
 // UPLOAD DOS ANEXOS PARA O DRIVE
 //
-// Em requisições multipart/form-data, o Apps Script entrega campos de
-// arquivo em e.parameter[nomeDoCampo] já como Blob (não como string).
-// e.parameters[nomeDoCampo] (plural) NÃO é confiável para arquivos —
-// era esse o bug que fazia todo upload ser pulado (arquivo.getBytes
-// nunca existia em e.parameters[campo][0]), deixando só a pasta do
-// CNPJ vazia, sem nenhuma subpasta/arquivo dentro.
+// Os anexos chegam do formulário como texto base64, em três campos por
+// documento: <campo>_base64, <campo>_nome e <campo>_tipo. Esse desvio
+// existe porque o Apps Script não entrega, no doPost, os arquivos de um
+// multipart/form-data como Blob utilizável — o campo vem sem conteúdo,
+// o upload era pulado e sobrava só a pasta do CNPJ vazia.
+//
+// O envio multipart continua aceito como alternativa, caso o campo
+// chegue mesmo como Blob.
 // ============================================================
 
 function uploadArquivos(e, numeroCNPJ) {
@@ -149,30 +151,86 @@ function uploadArquivos(e, numeroCNPJ) {
     throw new Error('O CNPJ informado é inválido.');
   }
 
-  const pastaPrincipal = DriveApp.getFolderById(PASTA_DRIVE_ID);
+  const pastaPrincipal = obterPastaPrincipal();
   const pastaCNPJ = obterOuCriarPasta(pastaPrincipal, cnpjNormalizado);
   const links = {};
+  const faltando = [];
 
   Object.keys(CAMPOS_ARQUIVO).forEach(campo => {
-    const arquivo = e.parameter[campo];
+    const config = CAMPOS_ARQUIVO[campo];
+    const arquivo = obterBlob(e, campo, config.nome);
 
-    if (!arquivo || typeof arquivo.getBytes !== 'function') {
-      Logger.log('Arquivo não enviado: ' + campo);
+    if (!arquivo) {
+      Logger.log('Anexo não recebido: ' + campo);
+      faltando.push(config.nome);
       return;
     }
 
-    const config = CAMPOS_ARQUIVO[campo];
     const pastaArquivo = obterOuCriarPasta(pastaCNPJ, config.pasta);
     const extensao = obterExtensao(arquivo.getName());
 
     const salvo = pastaArquivo.createFile(arquivo);
     salvo.setName(config.nome + extensao);
-    salvo.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    // Domínios do Workspace podem bloquear o link público; nesse caso o
+    // arquivo continua salvo, só acessível a quem tem acesso à pasta.
+    try {
+      salvo.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    } catch (erro) {
+      Logger.log('Não foi possível liberar o link de ' + campo + ': ' + erro.message);
+    }
 
     links[campo] = salvo.getUrl();
   });
 
+  // Todos os cinco anexos são obrigatórios no formulário. Falhar aqui é
+  // melhor do que gravar a linha na planilha apontando para o vazio.
+  if (faltando.length) {
+    throw new Error(
+      'Os anexos a seguir não chegaram ao servidor: ' + faltando.join(', ')
+      + '. Reenvie o formulário; se persistir, verifique se a implantação '
+      + 'do Apps Script está na versão mais recente.'
+    );
+  }
+
   return links;
+}
+
+// Monta o Blob do anexo a partir dos campos em base64 e, como
+// alternativa, do campo multipart cru.
+function obterBlob(e, campo, nomePadrao) {
+  const conteudo = e.parameter[campo + '_base64'];
+
+  if (conteudo && typeof conteudo === 'string') {
+    const tipo = e.parameter[campo + '_tipo'] || 'application/octet-stream';
+    const nome = e.parameter[campo + '_nome'] || nomePadrao;
+
+    return Utilities.newBlob(Utilities.base64Decode(conteudo), tipo, nome);
+  }
+
+  const bruto = e.parameter[campo];
+
+  if (bruto && typeof bruto.getBytes === 'function') {
+    return bruto;
+  }
+
+  return null;
+}
+
+// ============================================================
+// PASTA PRINCIPAL DO DRIVE
+// ============================================================
+
+function obterPastaPrincipal() {
+  try {
+    return DriveApp.getFolderById(PASTA_DRIVE_ID);
+  } catch (erro) {
+    throw new Error(
+      'A pasta do Drive configurada em PASTA_DRIVE_ID não pôde ser aberta. '
+      + 'Confira o ID na URL da pasta (drive.google.com/drive/folders/[ID]). '
+      + 'Detalhe: ' + erro.message
+    );
+  }
 }
 
 // ============================================================
@@ -276,6 +334,6 @@ function doGet() {
   return respostaJson({
     status: 'OK',
     message: 'Script funcionando corretamente',
-    versao: '3.0 - Pastas por CNPJ (corrigido)'
+    versao: '4.0 - Anexos em base64'
   });
 }

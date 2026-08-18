@@ -6,6 +6,97 @@
 // IMPORTANTE: substitua esta URL pela URL do seu Google Apps Script
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwbtljgwwm0leyrnLXOY3Hi_VMayrhN_fHcIEfJR_qiCJroACGX81HT0fLX5UjELPVGSg/exec';
 
+// Campos de arquivo do formulário, na mesma nomenclatura usada pelo
+// backend (CAMPOS_ARQUIVO em google-apps-script.gs).
+const CAMPOS_ARQUIVO = [
+  'cartaoCNPJ',
+  'fotoANTT',
+  'fotoCNH',
+  'fotoCRLV',
+  'comprovanteEndereco'
+];
+
+// Limite por anexo. O Apps Script recusa POSTs muito grandes e o
+// base64 ainda infla o conteúdo em cerca de 33%.
+const TAMANHO_MAXIMO_ARQUIVO = 8 * 1024 * 1024;
+
+// ============================================================
+// PREPARO DOS ANEXOS
+//
+// O Apps Script não entrega, no doPost, os arquivos de um
+// multipart/form-data como Blob utilizável: os campos de arquivo
+// chegam sem conteúdo e o upload é pulado silenciosamente — era isso
+// que deixava a pasta do CNPJ criada, porém vazia, sem nenhuma
+// subpasta ou documento dentro.
+//
+// Por isso cada arquivo é lido aqui e enviado como texto em três
+// campos (<campo>_base64, <campo>_nome e <campo>_tipo). O backend
+// remonta o arquivo com Utilities.newBlob.
+// ============================================================
+
+function lerArquivoBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const resultado = String(reader.result);
+      const separador = resultado.indexOf(',');
+
+      resolve(separador === -1 ? '' : resultado.slice(separador + 1));
+    };
+
+    reader.onerror = () => {
+      reject(erroDoUsuario(`Não foi possível ler o arquivo "${file.name}".`));
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+// Erro cuja mensagem pode ser mostrada ao usuário (diferente de uma
+// falha de rede genérica).
+function erroDoUsuario(mensagem) {
+  const erro = new Error(mensagem);
+
+  erro.doUsuario = true;
+
+  return erro;
+}
+
+async function prepararAnexos(form, formData) {
+  for (const campo of CAMPOS_ARQUIVO) {
+    // Remove o arquivo bruto: o conteúdo vai em base64 e enviar as
+    // duas versões só dobraria o tamanho do POST.
+    formData.delete(campo);
+
+    const input = form.querySelector(`#${campo}`);
+    const file = input && input.files ? input.files[0] : null;
+
+    if (!file) {
+      continue;
+    }
+
+    if (file.size > TAMANHO_MAXIMO_ARQUIVO) {
+      throw erroDoUsuario(
+        `O arquivo "${file.name}" tem ${formatBytes(file.size)} e passa do ` +
+        `limite de ${formatBytes(TAMANHO_MAXIMO_ARQUIVO)} por anexo.`
+      );
+    }
+
+    const conteudo = await lerArquivoBase64(file);
+
+    if (!conteudo) {
+      throw erroDoUsuario(
+        `O arquivo "${file.name}" chegou vazio. Selecione o arquivo novamente.`
+      );
+    }
+
+    formData.append(`${campo}_base64`, conteudo);
+    formData.append(`${campo}_nome`, file.name);
+    formData.append(`${campo}_tipo`, file.type || 'application/octet-stream');
+  }
+}
+
 // ============================================================
 // MÁSCARAS E VALIDAÇÕES
 // ============================================================
@@ -583,6 +674,9 @@ async function handleSubmit(e) {
     // Peso vai para a planilha como número puro (sem separador de milhar)
     formData.set('pesoBrutoTotal', peso.replace(/\D/g, ''));
 
+    // Converter os anexos para base64 (ver prepararAnexos)
+    await prepararAnexos(form, formData);
+
     // Enviar para o Google Apps Script
     const response = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
@@ -639,8 +733,10 @@ async function handleSubmit(e) {
 
     mostrarMensagem(
       'error',
-      'Erro ao enviar o cadastro. Por favor, tente novamente. ' +
-      'Se o problema persistir, entre em contato conosco.'
+      error && error.doUsuario
+        ? error.message
+        : 'Erro ao enviar o cadastro. Por favor, tente novamente. ' +
+          'Se o problema persistir, entre em contato conosco.'
     );
   } finally {
     // Reabilitar botão
