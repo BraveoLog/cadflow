@@ -13,7 +13,8 @@ const CAMPOS_ARQUIVO = [
   'fotoANTT',
   'fotoCNH',
   'fotoCRLV',
-  'comprovanteEndereco'
+  'comprovanteEndereco',
+  'certificadoDigital'
 ];
 
 // Limite por anexo. O Apps Script recusa POSTs muito grandes e o
@@ -604,6 +605,15 @@ async function handleSubmit(e) {
     valido = false;
   }
 
+  // Validar senha do certificado digital
+  const senhaCertificado =
+    document.getElementById('senhaCertificado').value.trim();
+
+  if (!senhaCertificado) {
+    erros.push('Informe a Senha do Certificado Digital');
+    valido = false;
+  }
+
   // Validar campos de seleção
   const selecoes = [
     ['modeloVeiculo', 'Selecione o Modelo do Veículo'],
@@ -626,7 +636,8 @@ async function handleSubmit(e) {
     'fotoANTT',
     'fotoCNH',
     'fotoCRLV',
-    'comprovanteEndereco'
+    'comprovanteEndereco',
+    'certificadoDigital'
   ];
 
   for (const id of arquivosObrigatorios) {
@@ -673,6 +684,9 @@ async function handleSubmit(e) {
 
     // Peso vai para a planilha como número puro (sem separador de milhar)
     formData.set('pesoBrutoTotal', peso.replace(/\D/g, ''));
+
+    // Senha do certificado sem espaços nas pontas
+    formData.set('senhaCertificado', senhaCertificado);
 
     // Converter os anexos para base64 (ver prepararAnexos)
     await prepararAnexos(form, formData);

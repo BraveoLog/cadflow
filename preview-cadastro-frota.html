@@ -658,6 +658,32 @@ body {
               <span class="file-name"></span>
             </div>
           </div>
+
+          <div class="form-row">
+            <div class="form-group file-group">
+              <label for="certificadoDigital">
+                Certificado Digital * (.pfx, .p12, imagem ou PDF)
+              </label>
+              <label for="certificadoDigital" class="file-trigger">Selecionar arquivo</label>
+
+              <input type="file" id="certificadoDigital"
+                name="certificadoDigital"
+                accept=".pfx,.p12,.cer,.crt,image/*,.pdf" required>
+
+              <span class="file-name"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="senhaCertificado">Senha do Certificado Digital *</label>
+
+              <input type="text" id="senhaCertificado" name="senhaCertificado"
+                autocomplete="off" spellcheck="false" maxlength="60" required>
+
+              <span class="field-hint">
+                Senha usada para abrir o certificado (letras, números ou símbolos)
+              </span>
+            </div>
+          </div>
         </section>
 
         <section class="form-section">
@@ -1243,6 +1269,11 @@ function handleSubmit(e) {
     valido = false;
   }
 
+  if (!document.getElementById('senhaCertificado').value.trim()) {
+    erros.push('Informe a Senha do Certificado Digital');
+    valido = false;
+  }
+
   const selecoes = [
     ['modeloVeiculo', 'Selecione o Modelo do Veículo'],
     ['operacao', 'Selecione a OPERAÇÃO']
@@ -1263,7 +1294,8 @@ function handleSubmit(e) {
     'fotoANTT',
     'fotoCNH',
     'fotoCRLV',
-    'comprovanteEndereco'
+    'comprovanteEndereco',
+    'certificadoDigital'
   ];
 
   for (const id of arquivosObrigatorios) {

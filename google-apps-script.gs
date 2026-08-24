@@ -16,7 +16,8 @@
 //            ├── ANTT                  (Foto da ANTT)
 //            ├── CNH                   (Foto da CNH)
 //            ├── CRLV                  (Foto do CRLV)
-//            └── Comprovante Endereço  (Comprovante de Endereço)
+//            ├── Comprovante Endereço  (Comprovante de Endereço)
+//            └── Certificado Digital   (Certificado Digital)
 // ============================================================
 
 // ID da planilha "Bd_Cadastro" (mesma usada pelo LogFlow / GOLOG).
@@ -31,11 +32,12 @@ const ABA_NOME = 'Bd_Cadastros';
 // DriveApp.getFolderById falhar ou apontar para o lugar errado.
 const PASTA_DRIVE_ID = '1Wh0INeCc_GT-an0inVT2ZMGfHmYZRQYzxY1eSr7LzKJdYsPfbV9gSh6Y6l0Mui18Ma2cnlX3';
 
-// Cabeçalhos das colunas A a W, na ordem documentada em
+// Cabeçalhos das colunas A a Y, na ordem documentada em
 // README-DEPLOY.md / CONFIGURACAO-EXEMPLO.md. Renavam e Peso Bruto
 // Total são coletados no formulário mas não constavam no layout A-U
 // original da planilha — gravados nas colunas V e W para não perder
-// esses dados.
+// esses dados. Certificado Digital e sua senha entraram depois, nas
+// colunas X e Y.
 const COLUNAS = [
   'Carimbo de data/hora',
   'Nome completo do Responsável CNPJ',
@@ -59,7 +61,9 @@ const COLUNAS = [
   'Telefone para Contato',
   'Inscrição Estadual',
   'Renavam',
-  'Peso Bruto Total'
+  'Peso Bruto Total',
+  'Certificado Digital',
+  'Senha do Certificado Digital'
 ];
 
 // Mapa: nome do campo no formulário -> cabeçalho correspondente na
@@ -82,7 +86,8 @@ const MAPA_CAMPOS = {
   telefoneContato: 'Telefone para Contato',
   inscricaoEstadual: 'Inscrição Estadual',
   renavam: 'Renavam',
-  pesoBrutoTotal: 'Peso Bruto Total'
+  pesoBrutoTotal: 'Peso Bruto Total',
+  senhaCertificado: 'Senha do Certificado Digital'
 };
 
 // Mapa: nome do campo de arquivo no formulário -> { subpasta dentro
@@ -96,6 +101,11 @@ const CAMPOS_ARQUIVO = {
     pasta: 'Comprovante Endereço',
     nome: 'Comprovante Endereço',
     coluna: 'Comprovante de Endereço'
+  },
+  certificadoDigital: {
+    pasta: 'Certificado Digital',
+    nome: 'Certificado Digital',
+    coluna: 'Certificado Digital'
   }
 };
 
@@ -183,7 +193,7 @@ function uploadArquivos(e, numeroCNPJ) {
     links[campo] = salvo.getUrl();
   });
 
-  // Todos os cinco anexos são obrigatórios no formulário. Falhar aqui é
+  // Todos os seis anexos são obrigatórios no formulário. Falhar aqui é
   // melhor do que gravar a linha na planilha apontando para o vazio.
   if (faltando.length) {
     throw new Error(
@@ -334,6 +344,6 @@ function doGet() {
   return respostaJson({
     status: 'OK',
     message: 'Script funcionando corretamente',
-    versao: '4.0 - Anexos em base64'
+    versao: '4.1 - Certificado Digital'
   });
 }

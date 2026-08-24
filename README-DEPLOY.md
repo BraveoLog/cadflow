@@ -202,8 +202,8 @@ git push -u origin main
 **No Drive:**
 
 - Abra a pasta de anexos configurada em `PASTA_DRIVE_ID`.
-- Devem estar presentes os cinco arquivos enviados: Cartão CNPJ, CNH,
-  ANTT, CRLV e comprovante de endereço.
+- Devem estar presentes os seis arquivos enviados: Cartão CNPJ, CNH,
+  ANTT, CRLV, comprovante de endereço e certificado digital.
 
 ### 3. Testar as validações
 
@@ -239,6 +239,8 @@ Cadflow/
 - Cartão CNPJ, em upload.
 - Foto da ANTT, em upload.
 - Comprovante de Endereço, em upload.
+- Certificado Digital, em upload (.pfx, .p12, imagem ou PDF).
+- Senha do Certificado Digital, texto livre.
 
 ### Dados do Motorista
 
@@ -268,7 +270,8 @@ Cadflow/
 > Renavam e Peso Bruto Total não faziam parte do layout de colunas A-U
 > originalmente documentado para `Bd_Cadastros`; para não perder esses
 > dados coletados no formulário, `google-apps-script.gs` grava-os nas
-> colunas V e W.
+> colunas V e W. Certificado Digital e Senha do Certificado Digital
+> foram acrescentados depois e vão para as colunas X e Y.
 
 ---
 
