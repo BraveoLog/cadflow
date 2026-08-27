@@ -694,9 +694,13 @@ async function handleSubmit(e) {
     const result = await response.json();
 
     if (result.success) {
+      // O backend responde atualizado: true quando a placa já existia e a
+      // linha na planilha foi sobrescrita com este envio.
       mostrarMensagem(
         'success',
-        'Cadastro enviado com sucesso. Em breve entraremos em contato.'
+        result.atualizado
+          ? 'Cadastro atualizado com sucesso. Esta placa já estava cadastrada e os dados foram substituídos pelos deste envio.'
+          : 'Cadastro enviado com sucesso. Em breve entraremos em contato.'
       );
 
       form.reset();

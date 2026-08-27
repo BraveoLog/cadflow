@@ -24,6 +24,16 @@
 const PLANILHA_ID = '1yhJiEGgeiWQzmr3pDnTBhpjZHnMUvxfSF3QCAp6a5gQ';
 const ABA_NOME = 'Bd_Cadastros';
 
+// Um veículo = uma linha. Quando a placa enviada já existe na planilha,
+// a linha inteira é sobrescrita com o cadastro novo (o último envio
+// sempre prevalece) em vez de gerar uma linha duplicada.
+//
+// REMOVER_DUPLICADAS trata a bagunça que já está na planilha: se a mesma
+// placa aparecer em mais de uma linha, a primeira recebe os dados novos
+// e as demais são apagadas, sobrando uma linha por placa. Coloque como
+// false para atualizar só a primeira e preservar as antigas.
+const REMOVER_DUPLICADAS = true;
+
 // ID da pasta do Google Drive onde os documentos anexados são salvos.
 // ATENÇÃO: um ID de pasta do Drive tem, em geral, 33 caracteres. O
 // valor abaixo tem 73 — verifique na URL da pasta
@@ -115,6 +125,20 @@ const CAMPOS_ARQUIVO = {
 // ============================================================
 
 function doPost(e) {
+  // Dois envios simultâneos da mesma placa poderiam ler a planilha antes
+  // de qualquer um dos dois gravar e acabar criando duas linhas. O lock
+  // serializa a leitura + gravação.
+  const trava = LockService.getScriptLock();
+
+  try {
+    trava.waitLock(30000);
+  } catch (erro) {
+    return respostaJson({
+      success: false,
+      message: 'O servidor está processando outro cadastro. Tente novamente em alguns segundos.'
+    });
+  }
+
   try {
     const dados = e.parameter;
 
@@ -129,13 +153,100 @@ function doPost(e) {
 
     const linkPorCampo = uploadArquivos(e, dados.numeroCNPJ);
     const linha = prepararLinha(dados, linkPorCampo);
+    const gravacao = gravarLinha(aba, linha, dados.placaVeiculo);
 
-    aba.appendRow(linha);
-
-    return respostaJson({ success: true });
+    return respostaJson({
+      success: true,
+      atualizado: gravacao.atualizado,
+      linhaPlanilha: gravacao.linha
+    });
   } catch (erro) {
     return respostaJson({ success: false, message: erro.message });
+  } finally {
+    trava.releaseLock();
   }
+}
+
+// ============================================================
+// GRAVAR NA PLANILHA (sobrescreve a linha da placa, se existir)
+// ============================================================
+
+function gravarLinha(aba, linha, placa) {
+  const placaNormalizada = normalizarPlaca(placa);
+
+  // Sem placa não há como identificar o cadastro: grava como novo.
+  const existentes = placaNormalizada
+    ? localizarLinhasPorPlaca(aba, placaNormalizada)
+    : [];
+
+  if (!existentes.length) {
+    aba.appendRow(linha);
+
+    return { atualizado: false, linha: aba.getLastRow() };
+  }
+
+  const alvo = existentes[0];
+
+  aba.getRange(alvo, 1, 1, linha.length).setValues([linha]);
+
+  if (REMOVER_DUPLICADAS && existentes.length > 1) {
+    // De baixo para cima: apagar uma linha desloca as de baixo.
+    existentes
+      .slice(1)
+      .sort((a, b) => b - a)
+      .forEach(numeroLinha => aba.deleteRow(numeroLinha));
+  }
+
+  return { atualizado: true, linha: alvo };
+}
+
+// Devolve os números das linhas cuja placa é a informada, em ordem.
+function localizarLinhasPorPlaca(aba, placaNormalizada) {
+  const ultimaLinha = aba.getLastRow();
+
+  if (ultimaLinha < 2) {
+    return [];
+  }
+
+  const coluna = obterColunaPlaca(aba);
+  const valores = aba.getRange(2, coluna, ultimaLinha - 1, 1).getValues();
+  const linhas = [];
+
+  valores.forEach((valor, indice) => {
+    if (normalizarPlaca(valor[0]) === placaNormalizada) {
+      linhas.push(indice + 2); // +2: a leitura começa na linha 2
+    }
+  });
+
+  return linhas;
+}
+
+// A planilha em produção usa títulos um pouco diferentes dos de COLUNAS
+// (ex.: "Foto da CNH do Motorista"), então a coluna da placa é achada
+// pelo cabeçalho que contém "PLACA"; COLUNAS é só o plano B.
+function obterColunaPlaca(aba) {
+  const totalColunas = aba.getLastColumn();
+
+  if (totalColunas) {
+    const cabecalhos = aba.getRange(1, 1, 1, totalColunas).getValues()[0];
+
+    for (let i = 0; i < cabecalhos.length; i++) {
+      if (cabecalhos[i].toString().toUpperCase().indexOf('PLACA') !== -1) {
+        return i + 1;
+      }
+    }
+  }
+
+  return COLUNAS.indexOf('PLACA do Veiculo') + 1;
+}
+
+// ABC-1D23, abc1d23 e "ABC 1D23" são a mesma placa.
+function normalizarPlaca(placa) {
+  if (placa === null || placa === undefined) {
+    return '';
+  }
+
+  return placa.toString().toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
 // ============================================================
@@ -348,6 +459,6 @@ function doGet() {
   return respostaJson({
     status: 'OK',
     message: 'Script funcionando corretamente',
-    versao: '4.1 - Certificado Digital'
+    versao: '4.2 - Atualização por placa'
   });
 }

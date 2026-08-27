@@ -21,6 +21,9 @@
 - Máscaras automáticas nos campos.
 - Upload de documentos para o Google Drive.
 - Inserção automática na planilha do Google Sheets.
+- Uma linha por placa: se a placa enviada já existe na planilha, a
+  linha inteira é sobrescrita com o cadastro novo, valendo sempre o
+  último envio (ver "Atualização por placa").
 - Layout corporativo, sem gradientes e sem ícones/emoji.
 - Responsivo, funcionando em desktop e dispositivos móveis.
 
@@ -130,8 +133,36 @@ nova versão de `google-apps-script.gs`:
 
 Para conferir qual versão está no ar, abra a URL `/exec` no navegador:
 o `doGet` responde com o campo `versao`. O código atual desta pasta é
-a versão `4.0 - Anexos em base64`; se a URL responder outra coisa, a
-implantação está atrasada.
+a versão `4.2 - Atualização por placa`; se a URL responder outra coisa,
+a implantação está atrasada.
+
+---
+
+## Atualização por placa
+
+A placa é a chave do cadastro. No `doPost`, antes de gravar, o script
+procura a placa enviada na coluna "PLACA do Veiculo":
+
+- **Placa nova:** a linha é acrescentada no fim da planilha, como antes.
+- **Placa já cadastrada:** a linha existente é sobrescrita por inteiro
+  com os dados do envio novo — carimbo de data/hora, links dos anexos e
+  todos os demais campos. A posição da linha na planilha não muda.
+- **Placa repetida em várias linhas** (duplicadas antigas): a primeira
+  recebe os dados novos e as demais são apagadas, sobrando uma linha por
+  placa. Para desligar essa limpeza e apenas atualizar a primeira, mude
+  `REMOVER_DUPLICADAS` para `false` no topo do `.gs`.
+
+A comparação ignora maiúsculas/minúsculas e pontuação, então `ABC-1D23`,
+`abc1d23` e `ABC 1D23` são a mesma placa.
+
+Os anexos continuam sendo gravados no Drive a cada envio, na pasta do
+CNPJ. Um recadastro da mesma placa cria arquivos novos e a planilha passa
+a apontar para eles; os arquivos antigos permanecem no Drive (não são
+apagados, porque a pasta é por CNPJ e pode conter documentos de outros
+veículos da mesma empresa).
+
+O `doPost` roda sob `LockService`, para que dois envios simultâneos da
+mesma placa não criem duas linhas.
 
 ---
 
