@@ -105,7 +105,8 @@ const CAMPOS_ARQUIVO = {
   certificadoDigital: {
     pasta: 'Certificado Digital',
     nome: 'Certificado Digital',
-    coluna: 'Certificado Digital'
+    coluna: 'Certificado Digital',
+    opcional: true
   }
 };
 
@@ -172,7 +173,9 @@ function uploadArquivos(e, numeroCNPJ) {
 
     if (!arquivo) {
       Logger.log('Anexo não recebido: ' + campo);
-      faltando.push(config.nome);
+      if (!config.opcional) {
+        faltando.push(config.nome);
+      }
       return;
     }
 
@@ -193,8 +196,9 @@ function uploadArquivos(e, numeroCNPJ) {
     links[campo] = salvo.getUrl();
   });
 
-  // Todos os seis anexos são obrigatórios no formulário. Falhar aqui é
-  // melhor do que gravar a linha na planilha apontando para o vazio.
+  // Os anexos obrigatórios (todos menos o Certificado Digital) precisam
+  // chegar. Falhar aqui é melhor do que gravar a linha na planilha
+  // apontando para o vazio.
   if (faltando.length) {
     throw new Error(
       'Os anexos a seguir não chegaram ao servidor: ' + faltando.join(', ')

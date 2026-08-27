@@ -605,14 +605,9 @@ async function handleSubmit(e) {
     valido = false;
   }
 
-  // Validar senha do certificado digital
+  // Senha do certificado digital (opcional)
   const senhaCertificado =
     document.getElementById('senhaCertificado').value.trim();
-
-  if (!senhaCertificado) {
-    erros.push('Informe a Senha do Certificado Digital');
-    valido = false;
-  }
 
   // Validar campos de seleção
   const selecoes = [
@@ -636,8 +631,7 @@ async function handleSubmit(e) {
     'fotoANTT',
     'fotoCNH',
     'fotoCRLV',
-    'comprovanteEndereco',
-    'certificadoDigital'
+    'comprovanteEndereco'
   ];
 
   for (const id of arquivosObrigatorios) {
