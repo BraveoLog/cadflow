@@ -321,8 +321,41 @@
                     <option value="FIORINO">FIORINO</option>
                     <option value="TOCO">TOCO</option>
                     <option value="TRUCK">TRUCK</option>
+                    <option value="CARRETA">CARRETA</option>
                   </select>
                 </div>
+              </div>
+            </div>
+
+            <div class="form-row" id="tipoEixoRow" hidden>
+              <div class="form-group">
+                <label for="tipoEixo">Tipo do Eixo *</label>
+
+                <div class="select-wrap">
+                  <select id="tipoEixo" name="tipoEixo">
+                    <option value="">Selecione o tipo do eixo</option>
+                    <option value="CAVALO">CAVALO</option>
+                    <option value="REBOQUE">REBOQUE</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row" id="segundaPlacaRow" hidden>
+              <div class="form-group">
+                <label for="segundaPlaca">Segunda PLACA do Veículo *</label>
+
+                <input
+                  type="text"
+                  id="segundaPlaca"
+                  name="segundaPlaca"
+                  placeholder="AAA0A00 ou AAA0000"
+                  maxlength="7"
+                >
+
+                <span class="field-hint">
+                  Formato antigo (AAA0000) ou Mercosul (AAA0A00)
+                </span>
               </div>
             </div>
 

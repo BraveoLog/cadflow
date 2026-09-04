@@ -220,6 +220,10 @@ body {
   margin-bottom: 0;
 }
 
+.form-row[hidden] {
+  display: none;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -746,8 +750,36 @@ body {
                   <option value="FIORINO">FIORINO</option>
                   <option value="TOCO">TOCO</option>
                   <option value="TRUCK">TRUCK</option>
+                  <option value="CARRETA">CARRETA</option>
                 </select>
               </div>
+            </div>
+          </div>
+
+          <div class="form-row" id="tipoEixoRow" hidden>
+            <div class="form-group">
+              <label for="tipoEixo">Tipo do Eixo *</label>
+
+              <div class="select-wrap">
+                <select id="tipoEixo" name="tipoEixo">
+                  <option value="">Selecione o tipo do eixo</option>
+                  <option value="CAVALO">CAVALO</option>
+                  <option value="REBOQUE">REBOQUE</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row" id="segundaPlacaRow" hidden>
+            <div class="form-group">
+              <label for="segundaPlaca">Segunda PLACA do Veículo *</label>
+
+              <input type="text" id="segundaPlaca" name="segundaPlaca"
+                placeholder="AAA0A00 ou AAA0000" maxlength="7">
+
+              <span class="field-hint">
+                Formato antigo (AAA0000) ou Mercosul (AAA0A00)
+              </span>
             </div>
           </div>
 
@@ -1094,6 +1126,55 @@ document.addEventListener('DOMContentLoaded', function () {
       .slice(0, 7);
   });
 
+  const segundaPlacaInput = document.getElementById('segundaPlaca');
+  segundaPlacaInput.addEventListener('input', e => {
+    e.target.value = e.target.value
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, '')
+      .slice(0, 7);
+  });
+
+  const modeloSelect = document.getElementById('modeloVeiculo');
+  const tipoEixoRow = document.getElementById('tipoEixoRow');
+  const tipoEixoSelect = document.getElementById('tipoEixo');
+  const segundaPlacaRow = document.getElementById('segundaPlacaRow');
+
+  function limparCampoCondicional(input) {
+    input.value = '';
+    input.required = false;
+    input.classList.remove('valid', 'invalid');
+
+    const formGroup = input.closest('.form-group');
+    formGroup.classList.remove('has-error');
+
+    const errorMsg = formGroup.querySelector('.error-message');
+    if (errorMsg) errorMsg.remove();
+  }
+
+  function atualizarSegundaPlaca() {
+    const exibir = tipoEixoSelect.value === 'REBOQUE';
+
+    segundaPlacaRow.hidden = !exibir;
+    segundaPlacaInput.required = exibir;
+
+    if (!exibir) limparCampoCondicional(segundaPlacaInput);
+  }
+
+  function atualizarTipoEixo() {
+    const exibir = modeloSelect.value === 'CARRETA';
+
+    tipoEixoRow.hidden = !exibir;
+    tipoEixoSelect.required = exibir;
+
+    if (!exibir) {
+      limparCampoCondicional(tipoEixoSelect);
+      atualizarSegundaPlaca();
+    }
+  }
+
+  modeloSelect.addEventListener('change', atualizarTipoEixo);
+  tipoEixoSelect.addEventListener('change', atualizarSegundaPlaca);
+
   const renavamInput = document.getElementById('renavam');
   renavamInput.addEventListener('input', e => {
     e.target.value = e.target.value.replace(/\D/g, '').slice(0, 11);
@@ -1143,6 +1224,10 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   placaInput.addEventListener('blur', e => {
+    validarCampo(e.target, validarPlaca, 'Placa inválida. Use AAA0000 ou AAA0A00');
+  });
+
+  segundaPlacaInput.addEventListener('blur', e => {
     validarCampo(e.target, validarPlaca, 'Placa inválida. Use AAA0000 ou AAA0A00');
   });
 
@@ -1281,6 +1366,26 @@ function handleSubmit(e) {
       select.classList.add('invalid');
       erros.push(mensagem);
       valido = false;
+    }
+  }
+
+  const modeloVeiculo = document.getElementById('modeloVeiculo').value;
+  const tipoEixo = tipoEixoSelect.value;
+
+  if (modeloVeiculo === 'CARRETA') {
+    if (!tipoEixo) {
+      tipoEixoSelect.classList.add('invalid');
+      erros.push('Selecione o Tipo do Eixo (CAVALO ou REBOQUE)');
+      valido = false;
+    }
+
+    if (tipoEixo === 'REBOQUE') {
+      const segundaPlaca = document.getElementById('segundaPlaca').value;
+
+      if (!validarPlaca(segundaPlaca)) {
+        erros.push('Segunda placa do veículo inválida. Use AAA0000 ou AAA0A00');
+        valido = false;
+      }
     }
   }
 

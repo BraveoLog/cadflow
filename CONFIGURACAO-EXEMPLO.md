@@ -83,9 +83,9 @@ Certifique-se de que a aba tem este nome exato, incluindo o caractere de sublinh
 
 A primeira linha da planilha deve ter estes cabeçalhos na ordem:
 
-| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Carimbo de data/hora | Nome completo do Responsável CNPJ | Numero CNPJ | Cartão CNPJ | Nome Completo do Motorista | Foto CNH | CPF MOTORISTA | Foto da ANTT do CNPJ | PLACA do Veiculo | Foto do CRLV do Veiculo | Numero da Conta - Digito | Numero da Agencia | Chave Pix | Nome do Banco | Email da Empresa | Comprovante de Endereço | Modelo do Veiculo | OPERAÇÃO | Razão Social Empresa | Telefone para Contato | Inscrição Estadual | Renavam | Peso Bruto Total | Certificado Digital | Senha do Certificado Digital |
+| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z | AA |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Carimbo de data/hora | Nome completo do Responsável CNPJ | Numero CNPJ | Cartão CNPJ | Nome Completo do Motorista | Foto CNH | CPF MOTORISTA | Foto da ANTT do CNPJ | PLACA do Veiculo | Foto do CRLV do Veiculo | Numero da Conta - Digito | Numero da Agencia | Chave Pix | Nome do Banco | Email da Empresa | Comprovante de Endereço | Modelo do Veiculo | OPERAÇÃO | Razão Social Empresa | Telefone para Contato | Inscrição Estadual | Renavam | Peso Bruto Total | Certificado Digital | Senha do Certificado Digital | Tipo de Eixo | Segunda Placa |
 
 **IMPORTANTE:** O Google Apps Script criará os cabeçalhos automaticamente na primeira execução, caso eles não existam.
 

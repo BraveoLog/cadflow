@@ -302,7 +302,10 @@ Cadflow/
 > originalmente documentado para `Bd_Cadastros`; para não perder esses
 > dados coletados no formulário, `google-apps-script.gs` grava-os nas
 > colunas V e W. Certificado Digital e Senha do Certificado Digital
-> foram acrescentados depois e vão para as colunas X e Y.
+> foram acrescentados depois e vão para as colunas X e Y. Tipo de Eixo
+> (CAVALO/REBOQUE, só preenchido quando o Modelo do Veículo é CARRETA)
+> e Segunda Placa (só preenchida quando o Tipo de Eixo é REBOQUE) vão
+> para as colunas Z e AA.
 
 ---
 

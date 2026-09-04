@@ -371,6 +371,65 @@ document.addEventListener('DOMContentLoaded', function () {
       .slice(0, 7);
   });
 
+  // Segunda placa (reboque): mesma máscara da primeira placa
+  const segundaPlacaInput = document.getElementById('segundaPlaca');
+
+  segundaPlacaInput.addEventListener('input', function (e) {
+    e.target.value = e.target.value
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, '')
+      .slice(0, 7);
+  });
+
+  // Modelo CARRETA pede o Tipo do Eixo; Tipo REBOQUE pede a Segunda
+  // Placa, seguindo a mesma regra da primeira placa.
+  const modeloSelect = document.getElementById('modeloVeiculo');
+  const tipoEixoRow = document.getElementById('tipoEixoRow');
+  const tipoEixoSelect = document.getElementById('tipoEixo');
+  const segundaPlacaRow = document.getElementById('segundaPlacaRow');
+
+  function limparCampoCondicional(input) {
+    input.value = '';
+    input.required = false;
+    input.classList.remove('valid', 'invalid');
+
+    const formGroup = input.closest('.form-group');
+
+    formGroup.classList.remove('has-error');
+
+    const errorMsg = formGroup.querySelector('.error-message');
+
+    if (errorMsg) {
+      errorMsg.remove();
+    }
+  }
+
+  function atualizarSegundaPlaca() {
+    const exibir = tipoEixoSelect.value === 'REBOQUE';
+
+    segundaPlacaRow.hidden = !exibir;
+    segundaPlacaInput.required = exibir;
+
+    if (!exibir) {
+      limparCampoCondicional(segundaPlacaInput);
+    }
+  }
+
+  function atualizarTipoEixo() {
+    const exibir = modeloSelect.value === 'CARRETA';
+
+    tipoEixoRow.hidden = !exibir;
+    tipoEixoSelect.required = exibir;
+
+    if (!exibir) {
+      limparCampoCondicional(tipoEixoSelect);
+      atualizarSegundaPlaca();
+    }
+  }
+
+  modeloSelect.addEventListener('change', atualizarTipoEixo);
+  tipoEixoSelect.addEventListener('change', atualizarSegundaPlaca);
+
   // Renavam: apenas números
   const renavamInput = document.getElementById('renavam');
 
@@ -433,6 +492,14 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   placaInput.addEventListener('blur', function (e) {
+    validarCampo(
+      e.target,
+      validarPlaca,
+      'Placa inválida. Use AAA0000 ou AAA0A00'
+    );
+  });
+
+  segundaPlacaInput.addEventListener('blur', function (e) {
     validarCampo(
       e.target,
       validarPlaca,
@@ -625,6 +692,31 @@ async function handleSubmit(e) {
     }
   }
 
+  // Modelo CARRETA exige o Tipo do Eixo; Tipo REBOQUE exige a Segunda
+  // Placa, validada com a mesma regra da primeira placa.
+  const modeloVeiculo = document.getElementById('modeloVeiculo').value;
+  const tipoEixoSelect = document.getElementById('tipoEixo');
+  const tipoEixo = tipoEixoSelect.value;
+
+  if (modeloVeiculo === 'CARRETA') {
+    if (!tipoEixo) {
+      tipoEixoSelect.classList.add('invalid');
+      erros.push('Selecione o Tipo do Eixo (CAVALO ou REBOQUE)');
+      valido = false;
+    }
+
+    if (tipoEixo === 'REBOQUE') {
+      const segundaPlaca = document.getElementById('segundaPlaca').value;
+
+      if (!validarPlaca(segundaPlaca)) {
+        erros.push(
+          'Segunda placa do veículo inválida. Use AAA0000 ou AAA0A00'
+        );
+        valido = false;
+      }
+    }
+  }
+
   // Verificar arquivos obrigatórios
   const arquivosObrigatorios = [
     'cartaoCNPJ',
@@ -704,6 +796,13 @@ async function handleSubmit(e) {
       );
 
       form.reset();
+
+      // form.reset() limpa os valores, mas não os estados condicionais
+      // (visibilidade/required) do Tipo do Eixo e da Segunda Placa.
+      document.getElementById('tipoEixoRow').hidden = true;
+      document.getElementById('tipoEixo').required = false;
+      document.getElementById('segundaPlacaRow').hidden = true;
+      document.getElementById('segundaPlaca').required = false;
 
       // Limpar estados de validação
       form.querySelectorAll('.valid, .invalid').forEach(campo => {

@@ -213,6 +213,10 @@ body {
   margin-bottom: 0;
 }
 
+.form-row[hidden] {
+  display: none;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
