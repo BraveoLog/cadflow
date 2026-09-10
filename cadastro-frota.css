@@ -453,6 +453,100 @@ body {
   color: var(--c-danger-text);
 }
 
+/* Notificação de sucesso em destaque (cadastro enviado) */
+.success-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.55);
+  animation: successOverlayFade 0.2s ease-out;
+}
+
+.success-overlay[hidden] {
+  display: none;
+}
+
+.success-overlay-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 32px 28px;
+  border-radius: var(--r-md, 12px);
+  border: 2px solid #17a34a;
+  background: #ecfdf3;
+  color: #04502a;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(4, 80, 42, 0.35);
+  animation: successOverlayPop 0.25s ease-out;
+}
+
+.success-overlay-check {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #17a34a;
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.success-overlay-card h2 {
+  margin: 0 0 10px;
+  font-size: 1.4rem;
+  color: #04502a;
+}
+
+.success-overlay-card p {
+  margin: 0 0 22px;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.success-overlay-close {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  padding: 12px 28px;
+  border-radius: var(--r-sm, 8px);
+  background: #17a34a;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.success-overlay-close:hover {
+  background: #0f7a41;
+}
+
+@keyframes successOverlayFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes successOverlayPop {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-color-scheme: dark) {
+  .success-overlay-card {
+    background: #0b2e1c;
+    color: #d1fae5;
+    border-color: #22c55e;
+  }
+
+  .success-overlay-card h2 {
+    color: #6ee7b7;
+  }
+}
+
 /* Validação de Campos */
 .form-group input.invalid,
 .form-group select.invalid {

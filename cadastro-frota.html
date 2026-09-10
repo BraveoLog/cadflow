@@ -525,6 +525,29 @@
       ></div>
     </main>
 
+    <!-- Notificação de sucesso em destaque -->
+    <div
+      id="successOverlay"
+      class="success-overlay"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="successOverlayTitle"
+      aria-describedby="successOverlayText"
+      hidden
+    >
+      <div class="success-overlay-card">
+        <div class="success-overlay-check" aria-hidden="true">&#10003;</div>
+        <h2 id="successOverlayTitle">Cadastro realizado com sucesso!</h2>
+        <p id="successOverlayText">
+          Aguarde <strong>48 horas</strong> para o retorno sobre a aprovação
+          dos documentos.
+        </p>
+        <button type="button" class="success-overlay-close" id="successOverlayClose">
+          Entendi
+        </button>
+      </div>
+    </div>
+
     <footer class="footer">
       <p>&copy; 2024 BRAVEOLOG — Todos os direitos reservados</p>
     </footer>

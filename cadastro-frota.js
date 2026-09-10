@@ -525,7 +525,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Envio do formulário
   form.addEventListener('submit', handleSubmit);
+
+  // Fechar a notificação de sucesso em destaque
+  const successOverlay = document.getElementById('successOverlay');
+  const successOverlayClose = document.getElementById('successOverlayClose');
+
+  successOverlayClose.addEventListener('click', ocultarSucessoDestaque);
+
+  successOverlay.addEventListener('click', function (e) {
+    if (e.target === successOverlay) {
+      ocultarSucessoDestaque();
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !successOverlay.hidden) {
+      ocultarSucessoDestaque();
+    }
+  });
 });
+
+// ============================================================
+// NOTIFICAÇÃO DE SUCESSO EM DESTAQUE
+// ============================================================
+
+function mostrarSucessoDestaque(titulo, texto) {
+  const overlay = document.getElementById('successOverlay');
+
+  overlay.querySelector('#successOverlayTitle').textContent = titulo;
+  overlay.querySelector('#successOverlayText').innerHTML = texto;
+  overlay.hidden = false;
+  document.body.style.overflow = 'hidden';
+
+  document.getElementById('successOverlayClose').focus();
+}
+
+function ocultarSucessoDestaque() {
+  document.getElementById('successOverlay').hidden = true;
+  document.body.style.overflow = '';
+}
 
 // ============================================================
 // VALIDAÇÃO DE CAMPO INDIVIDUAL
@@ -793,6 +831,19 @@ async function handleSubmit(e) {
         result.atualizado
           ? 'Cadastro atualizado com sucesso. Esta placa já estava cadastrada e os dados foram substituídos pelos deste envio.'
           : 'Cadastro enviado com sucesso. Em breve entraremos em contato.'
+      );
+
+      // Notificação verde em destaque, bem visível na tela.
+      mostrarSucessoDestaque(
+        result.atualizado
+          ? 'Cadastro atualizado com sucesso!'
+          : 'Cadastro realizado com sucesso!',
+        result.atualizado
+          ? 'Esta placa já estava cadastrada e os dados foram atualizados. ' +
+            'Aguarde <strong>48 horas</strong> para o retorno sobre a ' +
+            'aprovação dos documentos.'
+          : 'Aguarde <strong>48 horas</strong> para o retorno sobre a ' +
+            'aprovação dos documentos.'
       );
 
       form.reset();
