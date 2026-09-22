@@ -28,7 +28,8 @@ const FILIAIS_POR_UF = {
   PR: ['Arilog - Paiçandu (PR)'],
   RO: ['Oniz - GJM (RO)', 'Oniz - Porto Velho (RO)'],
   AC: ['Oniz - Rio Branco (AC)'],
-  RS: ['Oniz - Passo Fundo (RS)']
+  RS: ['Oniz - Passo Fundo (RS)'],
+  SC: ['Tiscoski - Forquilhinha (SC)']
 };
 
 // ============================================================

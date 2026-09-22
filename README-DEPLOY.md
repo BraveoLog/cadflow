@@ -296,13 +296,14 @@ Cadflow/
 
 ### Filial
 
-- Estado (UF): PR, RO, AC ou RS. Não é gravado na planilha — serve só
-  para filtrar as opções do campo Filial a seguir.
+- Estado (UF): PR, RO, AC, RS ou SC. Não é gravado na planilha — serve
+  só para filtrar as opções do campo Filial a seguir.
 - Filial: lista de filiais da UF escolhida.
   - PR: Arilog - Paiçandu (PR).
   - RO: Oniz - GJM (RO), Oniz - Porto Velho (RO).
   - AC: Oniz - Rio Branco (AC).
   - RS: Oniz - Passo Fundo (RS).
+  - SC: Tiscoski - Forquilhinha (SC).
 
   O select de Filial começa desabilitado e só lista as opções da UF
   selecionada (ver `FILIAIS_POR_UF` em `cadastro-frota.js`), para o
