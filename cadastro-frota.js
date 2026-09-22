@@ -21,6 +21,16 @@ const CAMPOS_ARQUIVO = [
 // base64 ainda infla o conteúdo em cerca de 33%.
 const TAMANHO_MAXIMO_ARQUIVO = 8 * 1024 * 1024;
 
+// Filiais disponíveis por UF. O select de Filial só mostra as opções
+// do estado escolhido, para o motorista não conseguir cadastrar numa
+// filial de outro estado por engano.
+const FILIAIS_POR_UF = {
+  PR: ['Arilog - Paiçandu (PR)'],
+  RO: ['Oniz - GJM (RO)', 'Oniz - Porto Velho (RO)'],
+  AC: ['Oniz - Rio Branco (AC)'],
+  RS: ['Oniz - Passo Fundo (RS)']
+};
+
 // ============================================================
 // PREPARO DOS ANEXOS
 //
@@ -294,6 +304,32 @@ function validarEmail(email) {
 
 document.addEventListener('DOMContentLoaded', function () {
   const form = document.getElementById('cadastroForm');
+
+  // UF -> Filial: o select de Filial só é liberado depois de escolher
+  // o estado, e só lista as filiais daquele estado.
+  const ufFilialSelect = document.getElementById('ufFilial');
+  const filialSelect = document.getElementById('filial');
+
+  ufFilialSelect.addEventListener('change', function (e) {
+    const uf = e.target.value;
+    const opcoes = FILIAIS_POR_UF[uf] || [];
+
+    filialSelect.innerHTML = '';
+    filialSelect.classList.remove('valid', 'invalid');
+
+    if (!opcoes.length) {
+      filialSelect.disabled = true;
+      filialSelect.appendChild(new Option('Selecione o estado primeiro', ''));
+      return;
+    }
+
+    filialSelect.disabled = false;
+    filialSelect.appendChild(new Option('Selecione a filial', ''));
+
+    opcoes.forEach(filial => {
+      filialSelect.appendChild(new Option(filial, filial));
+    });
+  });
 
   // CNPJ
   const cnpjInput = document.getElementById('numeroCNPJ');
@@ -716,6 +752,8 @@ async function handleSubmit(e) {
 
   // Validar campos de seleção
   const selecoes = [
+    ['ufFilial', 'Selecione o Estado (UF) da Filial'],
+    ['filial', 'Selecione a Filial'],
     ['modeloVeiculo', 'Selecione o Modelo do Veículo'],
     ['operacao', 'Selecione a OPERAÇÃO']
   ];
@@ -854,6 +892,17 @@ async function handleSubmit(e) {
       document.getElementById('tipoEixo').required = false;
       document.getElementById('segundaPlacaRow').hidden = true;
       document.getElementById('segundaPlaca').required = false;
+
+      // form.reset() não recria as opções do select de Filial (elas
+      // foram substituídas dinamicamente): volta ao estado inicial,
+      // travado até escolher a UF de novo.
+      const filialSelectReset = document.getElementById('filial');
+
+      filialSelectReset.innerHTML = '';
+      filialSelectReset.appendChild(
+        new Option('Selecione o estado primeiro', '')
+      );
+      filialSelectReset.disabled = true;
 
       // Limpar estados de validação
       form.querySelectorAll('.valid, .invalid').forEach(campo => {

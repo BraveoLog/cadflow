@@ -565,6 +565,40 @@ body {
     <form id="cadastroForm">
       <div class="panel">
         <section class="form-section">
+          <h2 class="section-title">Filial</h2>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="ufFilial">Estado (UF) *</label>
+
+              <div class="select-wrap">
+                <select id="ufFilial" name="ufFilial" required>
+                  <option value="">Selecione o estado</option>
+                  <option value="PR">PR</option>
+                  <option value="RO">RO</option>
+                  <option value="AC">AC</option>
+                  <option value="RS">RS</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="filial">Filial *</label>
+
+              <div class="select-wrap">
+                <select id="filial" name="filial" required disabled>
+                  <option value="">Selecione o estado primeiro</option>
+                </select>
+              </div>
+
+              <span class="field-hint">
+                As opções mudam conforme o estado selecionado
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
           <h2 class="section-title">Dados da Empresa</h2>
 
           <div class="form-row">
@@ -1068,8 +1102,36 @@ function validarEmail(email) {
 // Ligações de eventos
 // ============================================================
 
+// Filiais disponíveis por UF (idêntico ao cadastro-frota.js).
+const FILIAIS_POR_UF = {
+  PR: ['Arilog - Paiçandu (PR)'],
+  RO: ['Oniz - GJM (RO)', 'Oniz - Porto Velho (RO)'],
+  AC: ['Oniz - Rio Branco (AC)'],
+  RS: ['Oniz - Passo Fundo (RS)']
+};
+
 document.addEventListener('DOMContentLoaded', function () {
   const form = document.getElementById('cadastroForm');
+
+  const ufFilialSelect = document.getElementById('ufFilial');
+  const filialSelect = document.getElementById('filial');
+
+  ufFilialSelect.addEventListener('change', function (e) {
+    const opcoes = FILIAIS_POR_UF[e.target.value] || [];
+
+    filialSelect.innerHTML = '';
+    filialSelect.classList.remove('valid', 'invalid');
+
+    if (!opcoes.length) {
+      filialSelect.disabled = true;
+      filialSelect.appendChild(new Option('Selecione o estado primeiro', ''));
+      return;
+    }
+
+    filialSelect.disabled = false;
+    filialSelect.appendChild(new Option('Selecione a filial', ''));
+    opcoes.forEach(filial => filialSelect.appendChild(new Option(filial, filial)));
+  });
 
   const cnpjInput = document.getElementById('numeroCNPJ');
   cnpjInput.addEventListener('input', e => {
@@ -1355,6 +1417,8 @@ function handleSubmit(e) {
   }
 
   const selecoes = [
+    ['ufFilial', 'Selecione o Estado (UF) da Filial'],
+    ['filial', 'Selecione a Filial'],
     ['modeloVeiculo', 'Selecione o Modelo do Veículo'],
     ['operacao', 'Selecione a OPERAÇÃO']
   ];

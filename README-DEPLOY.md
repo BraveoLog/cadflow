@@ -133,7 +133,7 @@ nova versão de `google-apps-script.gs`:
 
 Para conferir qual versão está no ar, abra a URL `/exec` no navegador:
 o `doGet` responde com o campo `versao`. O código atual desta pasta é
-a versão `4.2 - Atualização por placa`; se a URL responder outra coisa,
+a versão `4.3 - Filial por UF`; se a URL responder outra coisa,
 a implantação está atrasada.
 
 ---
@@ -294,6 +294,20 @@ Cadflow/
 - Número da Conta - Dígito, no formato `00000-0`.
 - Chave Pix.
 
+### Filial
+
+- Estado (UF): PR, RO, AC ou RS. Não é gravado na planilha — serve só
+  para filtrar as opções do campo Filial a seguir.
+- Filial: lista de filiais da UF escolhida.
+  - PR: Arilog - Paiçandu (PR).
+  - RO: Oniz - GJM (RO), Oniz - Porto Velho (RO).
+  - AC: Oniz - Rio Branco (AC).
+  - RS: Oniz - Passo Fundo (RS).
+
+  O select de Filial começa desabilitado e só lista as opções da UF
+  selecionada (ver `FILIAIS_POR_UF` em `cadastro-frota.js`), para o
+  motorista não conseguir escolher a filial de outro estado por engano.
+
 ### Operação
 
 - Operação.
@@ -305,7 +319,8 @@ Cadflow/
 > foram acrescentados depois e vão para as colunas X e Y. Tipo de Eixo
 > (CAVALO/REBOQUE, só preenchido quando o Modelo do Veículo é CARRETA)
 > e Segunda Placa (só preenchida quando o Tipo de Eixo é REBOQUE) vão
-> para as colunas Z e AA.
+> para as colunas Z e AA. Filial (a UF em si não é gravada, só usada
+> para filtrar as opções) vai para a coluna AB.
 
 ---
 

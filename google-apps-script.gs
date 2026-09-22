@@ -42,13 +42,15 @@ const REMOVER_DUPLICADAS = true;
 // DriveApp.getFolderById falhar ou apontar para o lugar errado.
 const PASTA_DRIVE_ID = '1Wh0INeCc_GT-an0inVT2ZMGfHmYZRQYzxY1eSr7LzKJdYsPfbV9gSh6Y6l0Mui18Ma2cnlX3';
 
-// Cabeçalhos das colunas A a AA, na ordem documentada em
+// Cabeçalhos das colunas A a AB, na ordem documentada em
 // README-DEPLOY.md / CONFIGURACAO-EXEMPLO.md. Renavam e Peso Bruto
 // Total são coletados no formulário mas não constavam no layout A-U
 // original da planilha — gravados nas colunas V e W para não perder
 // esses dados. Certificado Digital e sua senha entraram depois, nas
 // colunas X e Y. Tipo de Eixo (CAVALO/REBOQUE, só para modelo CARRETA)
 // e Segunda Placa (só para REBOQUE) entraram depois, nas colunas Z e AA.
+// Filial (escolhida no formulário a partir da UF) entrou depois, na
+// coluna AB.
 const COLUNAS = [
   'Carimbo de data/hora',
   'Nome completo do Responsável CNPJ',
@@ -76,7 +78,8 @@ const COLUNAS = [
   'Certificado Digital',
   'Senha do Certificado Digital',
   'Tipo de Eixo',
-  'Segunda Placa'
+  'Segunda Placa',
+  'Filial'
 ];
 
 // Mapa: nome do campo no formulário -> cabeçalho correspondente na
@@ -102,7 +105,8 @@ const MAPA_CAMPOS = {
   pesoBrutoTotal: 'Peso Bruto Total',
   senhaCertificado: 'Senha do Certificado Digital',
   tipoEixo: 'Tipo de Eixo',
-  segundaPlaca: 'Segunda Placa'
+  segundaPlaca: 'Segunda Placa',
+  filial: 'Filial'
 };
 
 // Mapa: nome do campo de arquivo no formulário -> { subpasta dentro
@@ -464,6 +468,6 @@ function doGet() {
   return respostaJson({
     status: 'OK',
     message: 'Script funcionando corretamente',
-    versao: '4.2 - Atualização por placa'
+    versao: '4.3 - Filial por UF'
   });
 }
