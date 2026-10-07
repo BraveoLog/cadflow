@@ -2,11 +2,20 @@
 // CADASTRO DE FROTA - LOGFLOW BRAVEOLOG
 // Backend em Google Apps Script
 //
-// Conexão: mesma arquitetura usada pelo LogFlow (SiteDash/Site.py) —
-// uma única planilha central "Bd_Cadastro", aberta pelo ID a partir
-// do servidor (aqui, o próprio Apps Script; lá, uma conta de serviço
-// Google com gspread). O navegador nunca acessa a planilha ou o Drive
-// diretamente, só troca dados com este script via POST.
+// Conexão: o navegador nunca acessa o banco, a planilha ou o Drive
+// diretamente, só troca dados com este script via POST. Cada envio é
+// gravado em dois lugares:
+//
+//  1. Supabase (tabela logflow_cadastros) — a fonte que o LogFlow lê.
+//     URL e chave service_role ficam nas Propriedades do Script
+//     (SUPABASE_URL e SUPABASE_KEY), nunca neste código. Sem as duas
+//     propriedades, este passo é pulado.
+//  2. Planilha "Bd_Cadastro", aba Bd_Cadastros — cópia/backup durante a
+//     transição. Desligue com GRAVAR_PLANILHA = false quando não for
+//     mais necessária.
+//
+// Os dois destinos usam a placa como chave (um veículo = uma linha),
+// então reenviar o formulário depois de uma falha não duplica nada.
 //
 // Estrutura de pastas criada no Drive para cada cadastro:
 //
@@ -34,6 +43,12 @@ const ABA_NOME = 'Bd_Cadastros';
 // false para atualizar só a primeira e preservar as antigas.
 const REMOVER_DUPLICADAS = true;
 
+// Grava também na aba Bd_Cadastros (cópia do Supabase). false = só Supabase.
+const GRAVAR_PLANILHA = true;
+
+// Tabela do Supabase (supabase/migrations/*_logflow_cadastros.sql no SiteDash).
+const TABELA_SUPABASE = 'logflow_cadastros';
+
 // ID da pasta do Google Drive onde os documentos anexados são salvos.
 // ATENÇÃO: um ID de pasta do Drive tem, em geral, 33 caracteres. O
 // valor abaixo tem 73 — verifique na URL da pasta
@@ -50,7 +65,10 @@ const PASTA_DRIVE_ID = '1Wh0INeCc_GT-an0inVT2ZMGfHmYZRQYzxY1eSr7LzKJdYsPfbV9gSh6
 // colunas X e Y. Tipo de Eixo (CAVALO/REBOQUE, só para modelo CARRETA)
 // e Segunda Placa (só para REBOQUE) entraram depois, nas colunas Z e AA.
 // Filial (escolhida no formulário a partir da UF) entrou depois, na
-// coluna AB.
+// coluna AB. M³, Comprimento, Largura e Altura entraram depois, nas
+// colunas AC a AF (mesma posição que já tinham na planilha).
+// As colunas de controle do LogFlow (Status, Data Início, Data
+// Reprovação) ficam depois delas e nunca são tocadas por este script.
 const COLUNAS = [
   'Carimbo de data/hora',
   'Nome completo do Responsável CNPJ',
@@ -79,7 +97,11 @@ const COLUNAS = [
   'Senha do Certificado Digital',
   'Tipo de Eixo',
   'Segunda Placa',
-  'Filial'
+  'Filial',
+  'M³',
+  'Comprimento',
+  'Largura',
+  'Altura'
 ];
 
 // Mapa: nome do campo no formulário -> cabeçalho correspondente na
@@ -106,25 +128,68 @@ const MAPA_CAMPOS = {
   senhaCertificado: 'Senha do Certificado Digital',
   tipoEixo: 'Tipo de Eixo',
   segundaPlaca: 'Segunda Placa',
-  filial: 'Filial'
+  filial: 'Filial',
+  m3: 'M³',
+  comprimento: 'Comprimento',
+  largura: 'Largura',
+  altura: 'Altura'
+};
+
+// Mapa: nome do campo no formulário -> coluna da tabela no Supabase
+// (campos de texto). Os anexos usam CAMPOS_ARQUIVO[campo].banco.
+const COLUNAS_BANCO = {
+  carimboDataHora: 'carimbo_data_hora',
+  nomeResponsavel: 'nome_responsavel',
+  numeroCNPJ: 'numero_cnpj',
+  nomeMotorista: 'nome_motorista',
+  cpfMotorista: 'cpf_motorista',
+  placaVeiculo: 'placa',
+  numeroConta: 'numero_conta',
+  numeroAgencia: 'numero_agencia',
+  chavePix: 'chave_pix',
+  nomeBanco: 'nome_banco',
+  emailEmpresa: 'email_empresa',
+  modeloVeiculo: 'modelo_veiculo',
+  operacao: 'operacao',
+  razaoSocial: 'razao_social',
+  telefoneContato: 'telefone_contato',
+  inscricaoEstadual: 'inscricao_estadual',
+  renavam: 'renavam',
+  pesoBrutoTotal: 'peso_bruto_total',
+  senhaCertificado: 'senha_certificado',
+  tipoEixo: 'tipo_eixo',
+  segundaPlaca: 'segunda_placa',
+  filial: 'filial',
+  m3: 'm3',
+  comprimento: 'comprimento',
+  largura: 'largura',
+  altura: 'altura'
 };
 
 // Mapa: nome do campo de arquivo no formulário -> { subpasta dentro
 // da pasta do CNPJ, nome final do arquivo, cabeçalho na planilha }.
 const CAMPOS_ARQUIVO = {
-  cartaoCNPJ: { pasta: 'CNPJ', nome: 'Cartão CNPJ', coluna: 'Cartão CNPJ' },
-  fotoANTT: { pasta: 'ANTT', nome: 'ANTT', coluna: 'Foto da ANTT do CNPJ' },
-  fotoCNH: { pasta: 'CNH', nome: 'CNH', coluna: 'Foto CNH' },
-  fotoCRLV: { pasta: 'CRLV', nome: 'CRLV', coluna: 'Foto do CRLV do Veiculo' },
+  cartaoCNPJ: {
+    pasta: 'CNPJ', nome: 'Cartão CNPJ', coluna: 'Cartão CNPJ', banco: 'cartao_cnpj'
+  },
+  fotoANTT: {
+    pasta: 'ANTT', nome: 'ANTT', coluna: 'Foto da ANTT do CNPJ', banco: 'foto_antt'
+  },
+  fotoCNH: { pasta: 'CNH', nome: 'CNH', coluna: 'Foto CNH', banco: 'foto_cnh' },
+  fotoCRLV: {
+    pasta: 'CRLV', nome: 'CRLV', coluna: 'Foto do CRLV do Veiculo', banco: 'foto_crlv'
+  },
   comprovanteEndereco: {
     pasta: 'Comprovante Endereço',
     nome: 'Comprovante Endereço',
-    coluna: 'Comprovante de Endereço'
+    coluna: 'Comprovante de Endereço',
+    banco: 'comprovante_endereco'
   },
   certificadoDigital: {
     pasta: 'Certificado Digital',
     nome: 'Certificado Digital',
     coluna: 'Certificado Digital',
+    banco: 'certificado_digital',
     opcional: true
   }
 };
@@ -150,30 +215,163 @@ function doPost(e) {
 
   try {
     const dados = e.parameter;
+    const supabase = configSupabase();
 
-    const planilha = SpreadsheetApp.openById(PLANILHA_ID);
-    const aba = planilha.getSheetByName(ABA_NOME);
-
-    if (!aba) {
-      throw new Error(`Aba "${ABA_NOME}" não encontrada na planilha`);
+    if (!supabase && !GRAVAR_PLANILHA) {
+      throw new Error(
+        'Nenhum destino configurado: preencha SUPABASE_URL e SUPABASE_KEY '
+        + 'nas Propriedades do Script ou ligue GRAVAR_PLANILHA.'
+      );
     }
 
-    garantirCabecalho(aba);
+    // A aba é aberta antes do upload para um erro de configuração não
+    // deixar anexos órfãos no Drive.
+    const aba = GRAVAR_PLANILHA ? abrirAba() : null;
+
+    if (aba) {
+      garantirCabecalho(aba);
+    }
 
     const linkPorCampo = uploadArquivos(e, dados.numeroCNPJ);
-    const linha = prepararLinha(dados, linkPorCampo);
-    const gravacao = gravarLinha(aba, linha, dados.placaVeiculo);
+    let atualizado = false;
+    let linhaPlanilha = null;
+
+    // Supabase primeiro: é a fonte do LogFlow. Se falhar, nada vai para
+    // a planilha e o motorista recebe o erro para reenviar.
+    if (supabase) {
+      atualizado = gravarSupabase(supabase, dados, linkPorCampo);
+    }
+
+    if (aba) {
+      const linha = prepararLinha(dados, linkPorCampo);
+      const gravacao = gravarLinha(aba, linha, dados.placaVeiculo);
+
+      atualizado = gravacao.atualizado;
+      linhaPlanilha = gravacao.linha;
+    }
 
     return respostaJson({
       success: true,
-      atualizado: gravacao.atualizado,
-      linhaPlanilha: gravacao.linha
+      atualizado: atualizado,
+      linhaPlanilha: linhaPlanilha
     });
   } catch (erro) {
     return respostaJson({ success: false, message: erro.message });
   } finally {
     trava.releaseLock();
   }
+}
+
+function abrirAba() {
+  const planilha = SpreadsheetApp.openById(PLANILHA_ID);
+  const aba = planilha.getSheetByName(ABA_NOME);
+
+  if (!aba) {
+    throw new Error(`Aba "${ABA_NOME}" não encontrada na planilha`);
+  }
+
+  return aba;
+}
+
+// ============================================================
+// GRAVAR NO SUPABASE (upsert pela placa)
+//
+// Só envia os campos do formulário: Status, Data Início e Data
+// Reprovação, controlados pelo LogFlow, ficam como estão quando a
+// placa já existe — igual à planilha, onde o envio só reescreve as
+// colunas A a AF.
+// ============================================================
+
+function configSupabase() {
+  const propriedades = PropertiesService.getScriptProperties();
+  const url = (propriedades.getProperty('SUPABASE_URL') || '')
+    .trim()
+    .replace(/\/+$/, '')
+    .replace(/\/rest\/v1$/, '');
+  const chave = (propriedades.getProperty('SUPABASE_KEY') || '').trim();
+
+  return url && chave ? { url: url, chave: chave } : null;
+}
+
+function cabecalhosSupabase(supabase, extras) {
+  const cabecalhos = { apikey: supabase.chave };
+
+  // A chave legada (service_role) é um JWT e vai também como Bearer; as
+  // chaves novas (sb_secret_...) só no cabeçalho apikey.
+  if (supabase.chave.indexOf('eyJ') === 0) {
+    cabecalhos.Authorization = 'Bearer ' + supabase.chave;
+  }
+
+  return Object.assign(cabecalhos, extras || {});
+}
+
+function chamarSupabase(supabase, metodo, caminho, corpo, extras) {
+  const opcoes = {
+    method: metodo,
+    headers: cabecalhosSupabase(supabase, extras),
+    muteHttpExceptions: true
+  };
+
+  if (corpo !== undefined) {
+    opcoes.contentType = 'application/json';
+    opcoes.payload = JSON.stringify(corpo);
+  }
+
+  const resposta = UrlFetchApp.fetch(supabase.url + '/rest/v1/' + caminho, opcoes);
+  const codigo = resposta.getResponseCode();
+
+  if (codigo < 200 || codigo >= 300) {
+    // Nunca inclui a chave na mensagem.
+    throw new Error(
+      'Não foi possível gravar o cadastro no banco (Supabase respondeu '
+      + codigo + '). Tente novamente em alguns minutos. Detalhe: '
+      + resposta.getContentText().slice(0, 200)
+    );
+  }
+
+  return resposta.getContentText();
+}
+
+function montarRegistroBanco(dados, linkPorCampo) {
+  const registro = {};
+
+  Object.keys(COLUNAS_BANCO).forEach(campo => {
+    registro[COLUNAS_BANCO[campo]] = (dados[campo] || '').toString().trim();
+  });
+
+  Object.keys(CAMPOS_ARQUIVO).forEach(campo => {
+    registro[CAMPOS_ARQUIVO[campo].banco] = linkPorCampo[campo] || '';
+  });
+
+  registro.placa_chave = normalizarPlaca(dados.placaVeiculo);
+
+  return registro;
+}
+
+// Devolve true quando a placa já existia (cadastro atualizado).
+function gravarSupabase(supabase, dados, linkPorCampo) {
+  const registro = montarRegistroBanco(dados, linkPorCampo);
+
+  if (!registro.placa_chave) {
+    throw new Error('A placa do veículo não foi informada.');
+  }
+
+  const existente = JSON.parse(chamarSupabase(
+    supabase,
+    'get',
+    TABELA_SUPABASE + '?select=placa_chave&placa_chave=eq.'
+      + encodeURIComponent(registro.placa_chave)
+  ) || '[]');
+
+  chamarSupabase(
+    supabase,
+    'post',
+    TABELA_SUPABASE + '?on_conflict=placa_chave',
+    [registro],
+    { Prefer: 'resolution=merge-duplicates,return=minimal' }
+  );
+
+  return existente.length > 0;
 }
 
 // ============================================================
@@ -441,6 +639,23 @@ function respostaJson(objeto) {
 // ============================================================
 
 function testarConfiguracao() {
+  const supabase = configSupabase();
+
+  if (!supabase) {
+    Logger.log('AVISO: SUPABASE_URL/SUPABASE_KEY não preenchidas nas '
+      + 'Propriedades do Script — os envios NÃO vão para o Supabase.');
+  } else {
+    try {
+      const linhas = JSON.parse(chamarSupabase(
+        supabase, 'get', TABELA_SUPABASE + '?select=placa_chave&limit=1'
+      ) || '[]');
+      Logger.log(`OK: tabela ${TABELA_SUPABASE} acessível no Supabase `
+        + `(${linhas.length ? 'com' : 'sem'} cadastros)`);
+    } catch (erro) {
+      Logger.log(`ERRO: Supabase — ${erro.message}`);
+    }
+  }
+
   const planilha = SpreadsheetApp.openById(PLANILHA_ID);
   const aba = planilha.getSheetByName(ABA_NOME);
 
@@ -450,7 +665,8 @@ function testarConfiguracao() {
   }
 
   garantirCabecalho(aba);
-  Logger.log(`OK: aba "${ABA_NOME}" encontrada (${aba.getLastRow()} linhas)`);
+  Logger.log(`OK: aba "${ABA_NOME}" encontrada (${aba.getLastRow()} linhas)`
+    + (GRAVAR_PLANILHA ? '' : ' — GRAVAR_PLANILHA desligado'));
 
   try {
     const pasta = DriveApp.getFolderById(PASTA_DRIVE_ID);
@@ -468,6 +684,6 @@ function doGet() {
   return respostaJson({
     status: 'OK',
     message: 'Script funcionando corretamente',
-    versao: '4.3 - Filial por UF'
+    versao: '5.0 - Supabase + medidas do veículo'
   });
 }

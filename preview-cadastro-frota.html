@@ -842,6 +842,46 @@ body {
           </div>
 
           <div class="form-row">
+            <div class="form-group">
+              <label for="m3">M³ *</label>
+
+              <input type="text" id="m3" name="m3"
+                placeholder="0,0" inputmode="decimal" maxlength="6" required>
+
+              <span class="field-hint">Capacidade de carga em metros cúbicos (ex.: 3,5)</span>
+            </div>
+
+            <div class="form-group">
+              <label for="comprimento">Comprimento (m) *</label>
+
+              <input type="text" id="comprimento" name="comprimento"
+                placeholder="0,00" inputmode="decimal" maxlength="6" required>
+
+              <span class="field-hint">Medida interna do baú, em metros (ex.: 4,20)</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="largura">Largura (m) *</label>
+
+              <input type="text" id="largura" name="largura"
+                placeholder="0,00" inputmode="decimal" maxlength="6" required>
+
+              <span class="field-hint">Medida interna do baú, em metros (ex.: 2,20)</span>
+            </div>
+
+            <div class="form-group">
+              <label for="altura">Altura (m) *</label>
+
+              <input type="text" id="altura" name="altura"
+                placeholder="0,00" inputmode="decimal" maxlength="6" required>
+
+              <span class="field-hint">Medida interna do baú, em metros (ex.: 2,10)</span>
+            </div>
+          </div>
+
+          <div class="form-row">
             <div class="form-group file-group">
               <label for="fotoCRLV">
                 Foto do CRLV do Veículo * (imagem ou PDF)
@@ -1095,6 +1135,28 @@ function validarPesoBruto(peso) {
   return valor >= 0 && valor <= 20000;
 }
 
+// Medidas do veículo (mesmas regras de cadastro-frota.js)
+const MEDIDAS_VEICULO = {
+  m3: { rotulo: 'M³', maximo: 200 },
+  comprimento: { rotulo: 'Comprimento (m)', maximo: 30 },
+  largura: { rotulo: 'Largura (m)', maximo: 5 },
+  altura: { rotulo: 'Altura (m)', maximo: 5 }
+};
+
+function mascaraDecimal(valor) {
+  const limpo = valor.replace(/\./g, ',').replace(/[^\d,]/g, '');
+  const [inteiro, ...resto] = limpo.split(',');
+  const parteInteira = inteiro.slice(0, 3);
+  if (!resto.length) return parteInteira;
+  return `${parteInteira},${resto.join('').slice(0, 2)}`;
+}
+
+function validarMedida(valor, maximo) {
+  const texto = String(valor).trim().replace(',', '.');
+  const numero = /^\d+(\.\d+)?$/.test(texto) ? parseFloat(texto) : NaN;
+  return numero > 0 && numero <= maximo;
+}
+
 function validarEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -1247,6 +1309,19 @@ document.addEventListener('DOMContentLoaded', function () {
   const pesoInput = document.getElementById('pesoBrutoTotal');
   pesoInput.addEventListener('input', e => {
     e.target.value = mascaraPeso(e.target.value);
+  });
+
+  Object.keys(MEDIDAS_VEICULO).forEach(id => {
+    const input = document.getElementById(id);
+    const { rotulo, maximo } = MEDIDAS_VEICULO[id];
+    input.addEventListener('input', e => {
+      e.target.value = mascaraDecimal(e.target.value);
+    });
+    input.addEventListener('blur', e => {
+      e.target.value = e.target.value.replace(/,$/, '');
+      validarCampo(e.target, v => validarMedida(v, maximo),
+        `${rotulo} deve ser um número maior que 0 e até ${maximo}`);
+    });
   });
 
   document.querySelectorAll('.form-group select').forEach(select => {
@@ -1416,6 +1491,16 @@ function handleSubmit(e) {
   if (!validarPesoBruto(peso)) {
     erros.push('Peso Bruto Total deve ser um número entre 0 e 20.000 kg');
     valido = false;
+  }
+
+  for (const id of Object.keys(MEDIDAS_VEICULO)) {
+    const { rotulo, maximo } = MEDIDAS_VEICULO[id];
+    const input = document.getElementById(id);
+    input.value = input.value.replace(/,$/, '');
+    if (!validarMedida(input.value, maximo)) {
+      erros.push(`${rotulo} deve ser um número maior que 0 e até ${maximo}`);
+      valido = false;
+    }
   }
 
   const selecoes = [

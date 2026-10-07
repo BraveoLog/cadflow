@@ -292,6 +292,41 @@ function mascaraPeso(valor) {
   return digitos.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
+// Medidas do veículo (M³ e dimensões do baú em metros): número com
+// vírgula decimal, como gravado na planilha ("3,5"). O teto de cada
+// campo é o mesmo aceito na edição pelo LogFlow.
+const MEDIDAS_VEICULO = {
+  m3: { rotulo: 'M³', maximo: 200 },
+  comprimento: { rotulo: 'Comprimento (m)', maximo: 30 },
+  largura: { rotulo: 'Largura (m)', maximo: 5 },
+  altura: { rotulo: 'Altura (m)', maximo: 5 }
+};
+
+// Aplicar máscara decimal: até 3 dígitos inteiros e 2 decimais (0,00)
+function mascaraDecimal(valor) {
+  const limpo = valor.replace(/\./g, ',').replace(/[^\d,]/g, '');
+  const [inteiro, ...resto] = limpo.split(',');
+  const parteInteira = inteiro.slice(0, 3);
+
+  if (!resto.length) {
+    return parteInteira;
+  }
+
+  return `${parteInteira},${resto.join('').slice(0, 2)}`;
+}
+
+function numeroDecimal(valor) {
+  const texto = String(valor).trim().replace(',', '.');
+
+  return /^\d+(\.\d+)?$/.test(texto) ? parseFloat(texto) : NaN;
+}
+
+function validarMedida(valor, maximo) {
+  const numero = numeroDecimal(valor);
+
+  return numero > 0 && numero <= maximo;
+}
+
 // Validar email
 function validarEmail(email) {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -479,6 +514,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
   pesoInput.addEventListener('input', function (e) {
     e.target.value = mascaraPeso(e.target.value);
+  });
+
+  // Medidas do veículo: número com vírgula decimal
+  Object.keys(MEDIDAS_VEICULO).forEach(id => {
+    const input = document.getElementById(id);
+    const { rotulo, maximo } = MEDIDAS_VEICULO[id];
+
+    input.addEventListener('input', function (e) {
+      e.target.value = mascaraDecimal(e.target.value);
+    });
+
+    input.addEventListener('blur', function (e) {
+      // "3," vira "3"
+      e.target.value = e.target.value.replace(/,$/, '');
+
+      validarCampo(
+        e.target,
+        valor => validarMedida(valor, maximo),
+        `${rotulo} deve ser um número maior que 0 e até ${maximo}`
+      );
+    });
   });
 
   // Selects: feedback visual ao escolher
@@ -745,6 +801,19 @@ async function handleSubmit(e) {
   if (!validarPesoBruto(peso)) {
     erros.push('Peso Bruto Total deve ser um número entre 0 e 20.000 kg');
     valido = false;
+  }
+
+  // Validar medidas do veículo (M³, Comprimento, Largura, Altura)
+  for (const id of Object.keys(MEDIDAS_VEICULO)) {
+    const { rotulo, maximo } = MEDIDAS_VEICULO[id];
+    const input = document.getElementById(id);
+
+    input.value = input.value.replace(/,$/, '');
+
+    if (!validarMedida(input.value, maximo)) {
+      erros.push(`${rotulo} deve ser um número maior que 0 e até ${maximo}`);
+      valido = false;
+    }
   }
 
   // Senha do certificado digital (opcional)

@@ -50,9 +50,23 @@ mesma planilha central, e o formulário só conversa com esse script via
 `fetch` POST.
 
 ```text
-Navegador (form) → fetch POST → Apps Script → SpreadsheetApp.openById(PLANILHA_ID)
-                                            → DriveApp (upload dos anexos)
+Navegador (form) → fetch POST → Apps Script → DriveApp (upload dos anexos)
+                                            → Supabase (tabela logflow_cadastros)
+                                            → SpreadsheetApp.openById(PLANILHA_ID) (cópia)
 ```
+
+**Supabase (fonte do LogFlow).** Cada envio é gravado primeiro na
+tabela `logflow_cadastros` do Supabase, com a placa como chave (upsert:
+reenviar a mesma placa atualiza o cadastro, sem duplicar). Status, Data
+Início e Data Reprovação não são enviados pelo formulário, então um
+reenvio não apaga o que o LogFlow já marcou. Depois, a mesma linha vai
+para a aba `Bd_Cadastros`, que fica como cópia enquanto
+`GRAVAR_PLANILHA = true`.
+
+A tabela é criada pela migração
+`SiteDash/supabase/migrations/20261007000000_logflow_cadastros.sql`.
+A URL e a chave **não** ficam no código: vão nas Propriedades do Script
+(veja o Passo 3b). Sem elas, o envio grava só na planilha.
 
 O ID já está preenchido em `google-apps-script.gs`
 (`PLANILHA_ID = '1yhJiEGgeiWQzmr3pDnTBhpjZHnMUvxfSF3QCAp6a5gQ'`), o
@@ -97,13 +111,26 @@ https://docs.google.com/spreadsheets/d/[ID_DA_PLANILHA]/edit
 
 5. Renomeie o projeto para "Cadastro Frota Backend".
 
+### Passo 3b: Ligar a gravação no Supabase
+
+1. No editor do Apps Script: engrenagem "Configurações do projeto" >
+   "Propriedades do script" > "Adicionar propriedade do script".
+2. Crie duas propriedades:
+   - `SUPABASE_URL`: a URL do projeto (`https://<projeto>.supabase.co`),
+     a mesma das Secrets do LogFlow.
+   - `SUPABASE_KEY`: a chave **service_role** (ou `sb_secret_...`) do
+     mesmo projeto. Ela dá acesso total ao banco: nunca a cole no código,
+     no `cadastro-frota.js` ou em qualquer arquivo do repositório.
+3. Salve. A primeira execução vai pedir autorização para "conectar a um
+   serviço externo" (`UrlFetchApp`).
+
 ### Passo 4: Testar a configuração
 
 1. No editor do Apps Script, selecione a função `testarConfiguracao`.
 2. Clique em "Executar".
 3. Autorize o script quando solicitado.
-4. Verifique os logs em "Ver" > "Registros" — deve confirmar a aba
-   `Bd_Cadastros` e a pasta do Drive.
+4. Verifique os logs em "Ver" > "Registros" — deve confirmar a tabela
+   do Supabase, a aba `Bd_Cadastros` e a pasta do Drive.
 
 ### Passo 5: Implantar como Web App
 
@@ -133,7 +160,7 @@ nova versão de `google-apps-script.gs`:
 
 Para conferir qual versão está no ar, abra a URL `/exec` no navegador:
 o `doGet` responde com o campo `versao`. O código atual desta pasta é
-a versão `4.3 - Filial por UF`; se a URL responder outra coisa,
+a versão `5.0 - Supabase + medidas do veículo`; se a URL responder outra coisa,
 a implantação está atrasada.
 
 ---
@@ -285,6 +312,10 @@ Cadflow/
 - Modelo do Veículo.
 - Renavam, 9 a 11 dígitos.
 - Peso Bruto Total, entre 0 e 20.000 kg.
+- M³ (capacidade de carga), número maior que 0 e até 200, com vírgula
+  decimal (ex.: `3,5`).
+- Comprimento, Largura e Altura do baú, em metros, com vírgula decimal
+  (ex.: `4,20`). Tetos: comprimento 30 m, largura e altura 5 m.
 - Foto do CRLV, em upload.
 
 ### Dados Bancários
@@ -321,7 +352,10 @@ Cadflow/
 > (CAVALO/REBOQUE, só preenchido quando o Modelo do Veículo é CARRETA)
 > e Segunda Placa (só preenchida quando o Tipo de Eixo é REBOQUE) vão
 > para as colunas Z e AA. Filial (a UF em si não é gravada, só usada
-> para filtrar as opções) vai para a coluna AB.
+> para filtrar as opções) vai para a coluna AB. M³, Comprimento, Largura
+> e Altura vão para as colunas AC a AF (já existiam na planilha e eram
+> preenchidas à mão). As colunas seguintes (Status, Data Início, Data
+> Reprovação) são do LogFlow e o formulário nunca as altera.
 
 ---
 
